@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "nft-ptr",
+    "nft-ptr-lib",
+]
