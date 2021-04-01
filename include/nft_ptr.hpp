@@ -7,6 +7,7 @@ void WdbNftPtrInitialize(uint64_t owner_address, uint64_t caller_pc,
 void WdbNftPtrMoveToken(uint64_t owner_address, uint64_t previous_owner_address,
                         uint64_t value, uint64_t caller_pc,
                         const char* object_type);
+void WdbNftPtrDestroy(uint64_t owner_address);
 }  // extern "C"
 
 namespace wdb {
@@ -23,6 +24,13 @@ class nft_ptr {
           reinterpret_cast<uint64_t>(__builtin_return_address(0)),
           typeid(*ptr_).name());
     }
+  }
+
+  ~unique_ptr() {
+    if (ptr_) {
+      delete ptr_;
+    }
+    WdbNftPtrDestroy(reinterpret_cast<uint64_t>(this));
   }
 
   T& operator*() const { return *ptr_; }
