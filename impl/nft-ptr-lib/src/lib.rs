@@ -33,26 +33,26 @@ impl<T: web3::Transport> NftPtrLib<T> {
         // rust-web3/examples/contract.rs
         // TODO(zhuowei): understand this
         let my_account = self.account;
-        let bytecode =
-            include_str!("../../../contracts/build/contract_token.code").trim_end_matches("\n");
+        let bytecode = include_str!("../../../contracts/out/NftPtrToken.code");
         let contract = Contract::deploy(
             self.web3.eth(),
-            include_bytes!("../../../contracts/build/token.json"),
+            include_bytes!("../../../contracts/out/NftPtrToken.json"),
         )
         .unwrap()
-        .confirmations(1)
+        .confirmations(0)
         .options(web3::contract::Options::with(|opt| {
-            opt.value = Some(5.into());
+            //opt.value = Some(5.into());
             opt.gas_price = Some(5.into());
             opt.gas = Some(3_000_000.into());
         }))
         .execute(
             bytecode,
             (
-                U256::from(1_000_000_u64),
-                "My Token".to_owned(),
-                3u64,
-                "MT".to_owned(),
+                // TODO(zhuowei): add updated arguments for constructor
+                //U256::from(1_000_000_u64),
+                //"My Token".to_owned(),
+                //3u64,
+                //"MT".to_owned(),
             ),
             my_account,
         )
