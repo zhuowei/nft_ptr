@@ -7,6 +7,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+nft-ptr-lib = { path = "../nft-ptr-lib" }
+web3 = {git = "https://github.com/tomusdrw/rust-web3", rev="376bc7ea8ee78142b175f7f99787de15742b0790"}
+tokio = { version = "1", features = ["full"] }
+env_logger = "0.8"
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = ["cdylib"]

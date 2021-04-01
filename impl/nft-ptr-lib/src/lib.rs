@@ -97,6 +97,22 @@ impl<T: web3::Transport> NftPtrLib<T> {
             .await
             .unwrap();
     }
+    pub async fn move_token(
+        &mut self,
+        owner_address: u64,
+        previous_owner_address: u64,
+        value: u64,
+        caller_pc: u64,
+        object_type: &str,
+    ) {
+        // TODO(zhuowei) make this work!
+        self.mint_token(
+            self.account,
+            U256::from(value),
+            &format!("{:x}_{}", value, object_type),
+        )
+        .await;
+    }
 }
 
 pub async fn make_nft_ptr_lib_ipc() -> NftPtrLib<web3::transports::Ipc> {

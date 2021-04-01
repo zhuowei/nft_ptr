@@ -720,6 +720,12 @@ dependencies = [
 [[package]]
 name = "nft-ptr"
 version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "nft-ptr-lib",
+ "tokio",
+ "web3",
+]
 
 [[package]]
 name = "nft-ptr-lib"

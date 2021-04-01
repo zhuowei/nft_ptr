@@ -26,7 +26,7 @@ class nft_ptr {
     }
   }
 
-  ~unique_ptr() {
+  ~nft_ptr() {
     if (ptr_) {
       delete ptr_;
     }
