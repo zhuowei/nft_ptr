@@ -12,17 +12,18 @@ void WdbNftPtrDestroy(uint64_t owner_address);
 
 namespace wdb {
 template <class T>
-class nft_ptr {
+class nft_ptr final {
  public:
   explicit nft_ptr(T* ptr) : ptr_(ptr) {
+    // TODO(zhuowei): __builtin_return_address(0) picks up the C1 constructor??
+    void* caller_pc = __builtin_return_address(1);
     WdbNftPtrInitialize(reinterpret_cast<uint64_t>(this),
-                        reinterpret_cast<uint64_t>(__builtin_return_address(0)),
+                        reinterpret_cast<uint64_t>(caller_pc),
                         typeid(T).name());
     if (ptr_) {
       WdbNftPtrMoveToken(
           reinterpret_cast<uint64_t>(this), 0, reinterpret_cast<uint64_t>(ptr_),
-          reinterpret_cast<uint64_t>(__builtin_return_address(0)),
-          typeid(*ptr_).name());
+          reinterpret_cast<uint64_t>(caller_pc), typeid(*ptr_).name());
     }
   }
 

@@ -21,8 +21,14 @@ static NFTPTRLIB: SyncLazy<Mutex<NftPtrLib<web3::transports::Http>>> = SyncLazy:
 pub extern "C" fn WdbNftPtrInitialize(
     owner_address: u64,
     caller_pc: u64,
-    ptr_object_type: *const u8,
+    ptr_object_type: *const i8,
 ) {
+    let ptr_object_type_str = unsafe { CStr::from_ptr(ptr_object_type) }.to_str().unwrap();
+    RUNTIME.block_on(NFTPTRLIB.lock().unwrap().ptr_initialize(
+        owner_address,
+        caller_pc,
+        ptr_object_type_str,
+    ));
 }
 
 #[no_mangle]
@@ -44,7 +50,9 @@ pub extern "C" fn WdbNftPtrMoveToken(
 }
 
 #[no_mangle]
-pub extern "C" fn WdbNftPtrDestroy(owner_address: u64) {}
+pub extern "C" fn WdbNftPtrDestroy(owner_address: u64) {
+    RUNTIME.block_on(NFTPTRLIB.lock().unwrap().ptr_destroy(owner_address));
+}
 
 #[cfg(test)]
 mod tests {

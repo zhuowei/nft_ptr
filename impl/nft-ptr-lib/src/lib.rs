@@ -1,4 +1,5 @@
 use log::info;
+use std::collections::HashMap;
 use std::path::Path;
 use std::time::SystemTime;
 use web3::api::Web3;
@@ -12,6 +13,7 @@ pub struct NftPtrLib<T: web3::Transport> {
     web3: Web3<T>,
     pub account: Address,
     token_contract: Option<Contract<T>>,
+    instance_to_contract: HashMap<u64, Contract<T>>,
 }
 
 impl<T: web3::Transport> NftPtrLib<T> {
@@ -21,6 +23,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
             web3: web3,
             account: Address::zero(),
             token_contract: None,
+            instance_to_contract: HashMap::new(),
         }
     }
     pub async fn initialize(&mut self) {
@@ -113,6 +116,56 @@ impl<T: web3::Transport> NftPtrLib<T> {
         )
         .await;
     }
+    pub async fn ptr_initialize(
+        &mut self,
+        owner_address: u64,
+        caller_pc: u64,
+        ptr_object_type: &str,
+    ) {
+        // rust-web3/examples/contract.rs
+        // TODO(zhuowei): understand this
+        let name = format!(
+            "{:x}_{}_{}",
+            owner_address,
+            string_for_pc_addr(caller_pc),
+            ptr_object_type
+        );
+        info!("Deploying contract for nft_ptr {}", name);
+        let my_account = self.account;
+        let bytecode = include_str!("../../../contracts/out/NftPtrOwner.code");
+        let contract = Contract::deploy(
+            self.web3.eth(),
+            include_bytes!("../../../contracts/out/NftPtrOwner.json"),
+        )
+        .unwrap()
+        .confirmations(NUM_CONFIRMATIONS)
+        .options(web3::contract::Options::with(|opt| {
+            // TODO(zhuowei): why does leaving this uncommented give me
+            // "VM Exception while processing transaction: revert"
+            //opt.value = Some(5.into());
+            //opt.gas_price = Some(5.into());
+            opt.gas = Some(6_000_000.into());
+        }))
+        .execute(
+            bytecode,
+            (
+                // see NftPtrOwner.sol's constructor
+                /*name*/
+                name.to_owned(),
+            ),
+            my_account,
+        )
+        .await
+        .unwrap();
+        info!(
+            "Deployed contract for nft_ptr {} at {}",
+            name,
+            contract.address()
+        );
+        self.instance_to_contract.insert(owner_address, contract);
+    }
+
+    pub async fn ptr_destroy(&mut self, owner_address: u64) {}
 }
 
 pub async fn make_nft_ptr_lib_ipc() -> NftPtrLib<web3::transports::Ipc> {
@@ -124,6 +177,32 @@ pub async fn make_nft_ptr_lib_ipc() -> NftPtrLib<web3::transports::Ipc> {
 pub fn make_nft_ptr_lib_localhost() -> NftPtrLib<web3::transports::Http> {
     let transport = web3::transports::Http::new("http://127.0.0.1:7545").unwrap();
     NftPtrLib::new(transport)
+}
+
+fn string_for_pc_addr(pc_addr: u64) -> String {
+    let mut outstr: Option<String> = None;
+    let mut once: bool = false;
+    backtrace::resolve(pc_addr as _, |symbol| {
+        if once || symbol.filename().is_none() || symbol.lineno().is_none() {
+            return;
+        }
+        once = true;
+        let s = format!(
+            "{}:{}",
+            symbol
+                .filename()
+                .unwrap()
+                .file_name()
+                .unwrap()
+                .to_string_lossy(),
+            symbol.lineno().unwrap()
+        );
+        outstr = Some(s);
+    });
+    if !once {
+        return format!("{:x}", pc_addr);
+    }
+    return outstr.unwrap();
 }
 
 #[cfg(test)]

@@ -3,3 +3,4 @@ set -e
 rm -r out || true
 mkdir out
 python3 dumpbytecode.py build/contracts/NftPtrToken.json out/NftPtrToken.code out/NftPtrToken.json
+python3 dumpbytecode.py build/contracts/NftPtrOwner.json out/NftPtrOwner.code out/NftPtrOwner.json

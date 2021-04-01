@@ -5,8 +5,11 @@ using ::wdb::nft_ptr;
 
 class Animal {
  public:
+  virtual ~Animal();
   virtual void MakeSound() = 0;
 };
+
+Animal::~Animal() {}
 
 class Cow : public Animal {
   virtual void MakeSound() override;
