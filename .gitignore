@@ -1,3 +1,6 @@
 impl/target
 example/example
+contracts/out
+contracts/build
+contracts/node_modules
 .vscode
