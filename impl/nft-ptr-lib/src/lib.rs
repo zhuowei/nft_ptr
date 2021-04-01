@@ -1,11 +1,17 @@
 use log::info;
+use std::path::Path;
+use std::time::SystemTime;
 use web3::api::Web3;
 use web3::contract::Contract;
 use web3::types::{Address, U256};
 
+const NUM_CONFIRMATIONS: usize = 0;
+const TOKEN_BASE_URI: &str = "https://nft-ptr.notnow.dev/";
+
 pub struct NftPtrLib<T: web3::Transport> {
     web3: Web3<T>,
-    account: Address,
+    pub account: Address,
+    token_contract: Option<Contract<T>>,
 }
 
 impl<T: web3::Transport> NftPtrLib<T> {
@@ -14,6 +20,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
         NftPtrLib {
             web3: web3,
             account: Address::zero(),
+            token_contract: None,
         }
     }
     pub async fn initialize(&mut self) {
@@ -39,25 +46,56 @@ impl<T: web3::Transport> NftPtrLib<T> {
             include_bytes!("../../../contracts/out/NftPtrToken.json"),
         )
         .unwrap()
-        .confirmations(0)
+        .confirmations(NUM_CONFIRMATIONS)
         .options(web3::contract::Options::with(|opt| {
+            // TODO(zhuowei): why does leaving this uncommented give me
+            // "VM Exception while processing transaction: revert"
             //opt.value = Some(5.into());
-            opt.gas_price = Some(5.into());
-            opt.gas = Some(3_000_000.into());
+            //opt.gas_price = Some(5.into());
+            opt.gas = Some(6_000_000.into());
         }))
         .execute(
             bytecode,
             (
-                // TODO(zhuowei): add updated arguments for constructor
-                //U256::from(1_000_000_u64),
-                //"My Token".to_owned(),
-                //3u64,
-                //"MT".to_owned(),
+                // see NftPtrToken.sol's constructor
+                /*name*/
+                format!(
+                    "NftPtrToken_{}_{}",
+                    Path::new(&std::env::args().nth(0).unwrap())
+                        .file_name()
+                        .unwrap()
+                        .to_string_lossy(),
+                    SystemTime::now()
+                        .duration_since(SystemTime::UNIX_EPOCH)
+                        .unwrap()
+                        .as_millis()
+                ),
+                /*symbol*/
+                "NFT".to_owned(),
+                /*baseTokenURI*/
+                TOKEN_BASE_URI.to_owned(),
             ),
             my_account,
         )
         .await
         .unwrap();
+        self.token_contract = Some(contract);
+    }
+    pub async fn mint_token(&self, address: Address, token_id: U256, token_uri: &str) {
+        self.token_contract
+            .as_ref()
+            .unwrap()
+            .call_with_confirmations(
+                "mintId",
+                (address, token_id, token_uri.to_owned()),
+                self.account,
+                web3::contract::Options::with(|opt| {
+                    opt.gas = Some(1_000_000.into());
+                }),
+                NUM_CONFIRMATIONS,
+            )
+            .await
+            .unwrap();
     }
 }
 
