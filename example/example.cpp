@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "../include/nft_ptr.hpp"
 
 using ::wdb::nft_ptr;
@@ -22,6 +23,23 @@ class Duck : public Animal {
 };
 
 void Duck::MakeSound() { std::cout << "Quack!" << std::endl; }
+
+class Zoo {
+ public:
+  std::vector<nft_ptr<Animal>> animals_;
+  void AddAnimal(nft_ptr<Animal> animal);
+  void MakeNoises() const;
+};
+
+void Zoo::AddAnimal(nft_ptr<Animal> animal) {
+  animals_.push_back(std::move(animal));
+}
+
+void Zoo::MakeNoises() const {
+  for (const auto& animal : animals_) {
+    animal->MakeSound();
+  }
+}
 
 int main(int argc, char** argv) {
   nft_ptr<Animal> ptr1(new Cow());

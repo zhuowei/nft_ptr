@@ -20,28 +20,75 @@ class nft_ptr final {
     WdbNftPtrInitialize(reinterpret_cast<uint64_t>(this),
                         reinterpret_cast<uint64_t>(caller_pc),
                         typeid(T).name());
-    if (ptr_) {
-      WdbNftPtrMoveToken(
-          reinterpret_cast<uint64_t>(this), 0, reinterpret_cast<uint64_t>(ptr_),
-          reinterpret_cast<uint64_t>(caller_pc), typeid(*ptr_).name());
+    SendMoveToken(this, /*previous_owner=*/nullptr, ptr, caller_pc);
+  }
+
+  template <class T2>
+  nft_ptr(nft_ptr<T2>&& other) {
+    void* caller_pc = __builtin_return_address(0);
+    WdbNftPtrInitialize(reinterpret_cast<uint64_t>(this),
+                        reinterpret_cast<uint64_t>(caller_pc),
+                        typeid(T).name());
+    T* new_ptr = other.ptr_;
+    if (!new_ptr) {
+      return;
     }
+    other.ptr_ = nullptr;
+    ptr_ = new_ptr;
+    SendMoveToken(this, /*previous_owner=*/&other, new_ptr, caller_pc);
   }
 
   ~nft_ptr() {
-    if (ptr_) {
-      delete ptr_;
-    }
+    reset();
     WdbNftPtrDestroy(reinterpret_cast<uint64_t>(this));
   }
+
+  T* get() const { return ptr_; };
 
   T& operator*() const { return *ptr_; }
 
   T* operator->() const { return ptr_; }
 
+  void reset(T* new_ptr = nullptr) {
+    void* caller_pc = __builtin_return_address(0);
+    T* old_ptr = ptr_;
+    ptr_ = new_ptr;
+    if (old_ptr) {
+      SendMoveToken(/*owner=*/nullptr, this, old_ptr, caller_pc);
+      delete old_ptr;
+    }
+    if (new_ptr) {
+      SendMoveToken(this, /*previous_owner=*/nullptr, new_ptr, caller_pc);
+    }
+  }
+
   nft_ptr(const nft_ptr& Right) = delete;
   nft_ptr& operator=(const nft_ptr& Right) = delete;
+  template <class T2>
+  nft_ptr<T>& operator=(nft_ptr<T2>&& other) {
+    reset();
+    T* new_ptr = other.ptr_;
+    if (!new_ptr) {
+      return;
+    }
+    other.ptr_ = nullptr;
+    ptr_ = new_ptr;
+    void* caller_pc = __builtin_return_address(0);
+    SendMoveToken(this, /*previous_owner=*/&other, new_ptr, caller_pc);
+  }
 
  private:
   T* ptr_;
+
+  static void SendMoveToken(void* owner, void* previous_owner, T* value,
+                            void* caller_pc) {
+    if (value) {
+      WdbNftPtrMoveToken(reinterpret_cast<uint64_t>(owner),
+                         reinterpret_cast<uint64_t>(previous_owner),
+                         reinterpret_cast<uint64_t>(value),
+                         reinterpret_cast<uint64_t>(caller_pc),
+                         typeid(*value).name());
+    }
+  }
 };
 }  // namespace wdb
