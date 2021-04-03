@@ -10,6 +10,7 @@ edition = "2018"
 web3 = {git = "https://github.com/tomusdrw/rust-web3", rev="376bc7ea8ee78142b175f7f99787de15742b0790"}
 log = "0.4"
 backtrace = "0.3"
+cpp_demangle = "0.3"
 
 [dev-dependencies]
 env_logger = "0.8"

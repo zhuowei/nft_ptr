@@ -84,22 +84,14 @@ impl<T: web3::Transport> NftPtrLib<T> {
         .unwrap();
         self.token_contract = Some(contract);
     }
-    pub async fn mint_token(&self, address: Address, token_id: U256, token_uri: &str) {
-        self.token_contract
-            .as_ref()
-            .unwrap()
-            .call_with_confirmations(
-                "mintId",
-                (address, token_id, token_uri.to_owned()),
-                self.account,
-                web3::contract::Options::with(|opt| {
-                    opt.gas = Some(1_000_000.into());
-                }),
-                NUM_CONFIRMATIONS,
-            )
-            .await
-            .unwrap();
+
+    fn mem_address_to_owner_contract_address(&self, a: u64) -> Address {
+        if self.instance_to_contract.contains_key(&a) {
+            return self.instance_to_contract[&a].address();
+        }
+        return self.account;
     }
+
     pub async fn move_token(
         &mut self,
         owner_address: u64,
@@ -108,13 +100,47 @@ impl<T: web3::Transport> NftPtrLib<T> {
         caller_pc: u64,
         object_type: &str,
     ) {
-        // TODO(zhuowei) make this work!
-        self.mint_token(
-            self.account,
-            U256::from(value),
-            &format!("{:x}_{}", value, object_type),
-        )
-        .await;
+        let caller_pc_lineinfo = string_for_pc_addr(caller_pc);
+        let caller_pc_backtrace_str = format!("{:x} {}", owner_address, caller_pc_lineinfo,);
+        let object_type_demangled = demangle_typename(object_type);
+        let token_uri = format!("{:x} {}", value, object_type);
+        let owner_contract = self.mem_address_to_owner_contract_address(owner_address);
+        let previous_owner_contract =
+            self.mem_address_to_owner_contract_address(previous_owner_address);
+        // TODO(zhuowei): figure out what to do with the caller_pc
+        info!(
+            "Transferring 0x{:x} ({}) from 0x{:x} ({}) to 0x{:x} ({}) at PC=0x{:x} ({})",
+            value,
+            object_type_demangled,
+            owner_address,
+            owner_contract,
+            previous_owner_address,
+            previous_owner_contract,
+            caller_pc,
+            caller_pc_lineinfo,
+        );
+        let transaction = self
+            .token_contract
+            .as_ref()
+            .unwrap()
+            .call_with_confirmations(
+                "mintOrMove",
+                (
+                    owner_contract,
+                    previous_owner_contract,
+                    U256::from(value),
+                    token_uri,
+                    caller_pc_backtrace_str,
+                ),
+                self.account,
+                web3::contract::Options::with(|opt| {
+                    opt.gas = Some(1_000_000.into());
+                }),
+                NUM_CONFIRMATIONS,
+            )
+            .await
+            .unwrap();
+        info!("Transaction: {}", transaction.transaction_hash);
     }
     pub async fn ptr_initialize(
         &mut self,
@@ -125,10 +151,10 @@ impl<T: web3::Transport> NftPtrLib<T> {
         // rust-web3/examples/contract.rs
         // TODO(zhuowei): understand this
         let name = format!(
-            "{:x}_{}_{}",
+            "{:x} {} {}",
             owner_address,
+            ptr_object_type,
             string_for_pc_addr(caller_pc),
-            ptr_object_type
         );
         info!("Deploying contract for nft_ptr {}", name);
         let my_account = self.account;
@@ -165,7 +191,11 @@ impl<T: web3::Transport> NftPtrLib<T> {
         self.instance_to_contract.insert(owner_address, contract);
     }
 
-    pub async fn ptr_destroy(&mut self, owner_address: u64) {}
+    pub async fn ptr_destroy(&mut self, owner_address: u64) {
+        // Don't actually destroy the contract so we can inspect later
+        // TODO(zhuowei): actually destroy this pointer?
+        self.instance_to_contract.remove(&owner_address);
+    }
 }
 
 pub async fn make_nft_ptr_lib_ipc() -> NftPtrLib<web3::transports::Ipc> {
@@ -205,10 +235,24 @@ fn string_for_pc_addr(pc_addr: u64) -> String {
     return outstr.unwrap();
 }
 
+fn demangle_typename(typename: &str) -> String {
+    // I could just call abi::__cxx_demangle in the C++, but lol WRITE IT IN RUST
+    let demangled = cpp_demangle::Symbol::new(typename);
+    if demangled.is_ok() {
+        return demangled.unwrap().to_string();
+    }
+    return typename.to_string();
+}
+
 #[cfg(test)]
 mod tests {
+    use super::*;
     #[test]
     fn it_works() {
         assert_eq!(2 + 2, 4);
+    }
+    #[test]
+    fn demangle_typename_example() {
+        assert_eq!(demangle_typename("P3Cow"), "Cow*");
     }
 }
