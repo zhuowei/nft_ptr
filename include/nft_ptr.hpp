@@ -25,7 +25,7 @@ class nft_ptr final {
 
   template <class T2>
   nft_ptr(nft_ptr<T2>&& other) {
-    void* caller_pc = __builtin_return_address(0);
+    void* caller_pc = __builtin_return_address(1);
     WdbNftPtrInitialize(reinterpret_cast<uint64_t>(this),
                         reinterpret_cast<uint64_t>(caller_pc),
                         typeid(T).name());
@@ -36,6 +36,14 @@ class nft_ptr final {
     other.ptr_ = nullptr;
     ptr_ = new_ptr;
     SendMoveToken(this, /*previous_owner=*/&other, new_ptr, caller_pc);
+  }
+
+  // used by make_nft
+  nft_ptr(T* ptr, void* caller_pc) : ptr_(ptr) {
+    WdbNftPtrInitialize(reinterpret_cast<uint64_t>(this),
+                        reinterpret_cast<uint64_t>(caller_pc),
+                        typeid(T).name());
+    SendMoveToken(this, /*previous_owner=*/nullptr, ptr, caller_pc);
   }
 
   ~nft_ptr() {
@@ -71,20 +79,28 @@ class nft_ptr final {
   nft_ptr& operator=(const nft_ptr& Right) = delete;
   template <class T2>
   nft_ptr<T>& operator=(nft_ptr<T2>&& other) {
-    reset();
+    void* caller_pc = __builtin_return_address(0);
+
+    if (ptr_) {
+      SendMoveToken(/*owner=*/nullptr, this, ptr_, caller_pc);
+      delete ptr_;
+      ptr_ = nullptr;
+    }
     T* new_ptr = other.ptr_;
     if (!new_ptr) {
-      return;
+      return *this;
     }
     other.ptr_ = nullptr;
     ptr_ = new_ptr;
-    void* caller_pc = __builtin_return_address(0);
     SendMoveToken(this, /*previous_owner=*/&other, new_ptr, caller_pc);
+    return *this;
   }
 
- private:
+  // vars
+  // TODO(zhuowei): make this a friend instead of public
   T* ptr_;
 
+ private:
   static void SendMoveToken(void* owner, void* previous_owner, T* value,
                             void* caller_pc) {
     if (value) {
@@ -96,4 +112,10 @@ class nft_ptr final {
     }
   }
 };
+
+template <class T, class... Args>
+nft_ptr<T> make_nft(Args&&... args) {
+  return nft_ptr<T>(new T(args...), __builtin_return_address(0));
+}
+
 }  // namespace wdb
