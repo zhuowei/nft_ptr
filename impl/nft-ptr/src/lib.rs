@@ -1,6 +1,6 @@
 #![feature(once_cell)]
 
-use nft_ptr_lib::{make_nft_ptr_lib_localhost, NftPtrLib};
+use nft_ptr_lib::{make_nft_ptr_lib, NftPtrLib, NftPtrLibTransport};
 use std::ffi::CStr;
 use std::lazy::SyncLazy;
 use std::sync::Mutex;
@@ -9,10 +9,10 @@ static RUNTIME: SyncLazy<tokio::runtime::Runtime> =
     SyncLazy::new(|| tokio::runtime::Runtime::new().unwrap());
 
 // https://stackoverflow.com/questions/27791532/how-do-i-create-a-global-mutable-singleton
-static NFTPTRLIB: SyncLazy<Mutex<NftPtrLib<web3::transports::Http>>> = SyncLazy::new(|| {
+static NFTPTRLIB: SyncLazy<Mutex<NftPtrLib<NftPtrLibTransport>>> = SyncLazy::new(|| {
     // TODO(zhuowei): find a real place for this, haha
     env_logger::init();
-    let mut lib = make_nft_ptr_lib_localhost();
+    let mut lib = RUNTIME.block_on(make_nft_ptr_lib());
     RUNTIME.block_on(lib.initialize());
     Mutex::new(lib)
 });

@@ -29,12 +29,12 @@ impl<T: web3::Transport> NftPtrLib<T> {
     pub async fn initialize(&mut self) {
         self.check_not_prod().await;
         self.account = self.web3.personal().list_accounts().await.unwrap()[0];
-        info!("Account: {}", self.account);
+        info!("Account: {:#x}", self.account);
         self.deploy_token_contract().await;
     }
     async fn check_not_prod(&self) {
         let version = self.web3.net().version().await.unwrap();
-        info!("Connected to {} network", version);
+        info!("Connected to network id {}", version);
         if version == "1" {
             panic!("Cowardly refusing to run on mainnet and waste real \"money\"");
         }
@@ -209,6 +209,19 @@ pub async fn make_nft_ptr_lib_ipc() -> NftPtrLib<web3::transports::Ipc> {
 
 pub fn make_nft_ptr_lib_localhost() -> NftPtrLib<web3::transports::Http> {
     let transport = web3::transports::Http::new("http://127.0.0.1:7545").unwrap();
+    NftPtrLib::new(transport)
+}
+
+pub type NftPtrLibTransport =
+    web3::transports::Either<web3::transports::Http, web3::transports::Ipc>;
+
+pub async fn make_nft_ptr_lib() -> NftPtrLib<NftPtrLibTransport> {
+    let ipc_path = std::env::var("NFT_PTR_IPC");
+    let transport = if ipc_path.is_ok() {
+        NftPtrLibTransport::Right(web3::transports::Ipc::new(ipc_path.unwrap()).await.unwrap())
+    } else {
+        NftPtrLibTransport::Left(web3::transports::Http::new("http://127.0.0.1:7545").unwrap())
+    };
     NftPtrLib::new(transport)
 }
 
