@@ -31,6 +31,10 @@ impl<T: web3::Transport> NftPtrLib<T> {
         self.account = self.web3.personal().list_accounts().await.unwrap()[0];
         info!("Account: {:#x}", self.account);
         self.deploy_token_contract().await;
+        info!(
+            "Token contract deployed at {:#x}",
+            self.token_contract.as_ref().unwrap().address()
+        );
     }
     async fn check_not_prod(&self) {
         let version = self.web3.net().version().await.unwrap();
@@ -112,7 +116,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
             self.mem_address_to_owner_contract_address(previous_owner_address);
         // TODO(zhuowei): figure out what to do with the caller_pc
         info!(
-            "Transferring 0x{:x} ({}) to 0x{:x} ({}) from 0x{:x} ({}) at PC=0x{:x} ({})",
+            "Transferring {:#x} ({}) to {:#x} ({:#x}) from {:#x} ({:#x}) at PC={:#x} ({})",
             value,
             object_type_demangled,
             owner_address,
@@ -143,7 +147,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
             )
             .await
             .unwrap();
-        info!("Transaction: {}", transaction.transaction_hash);
+        info!("Transaction: {:#x}", transaction.transaction_hash);
     }
     pub async fn ptr_initialize(
         &mut self,
@@ -187,7 +191,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
         .await
         .unwrap();
         info!(
-            "Deployed contract for nft_ptr {} at {}",
+            "Deployed contract for nft_ptr {} at {:#x}",
             name,
             contract.address()
         );

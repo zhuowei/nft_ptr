@@ -54,12 +54,12 @@ void Zoo::MakeNoises() const {
 int main(int argc, char** argv) {
   std::cout << "Creating ptr1!" << std::endl;
   nft_ptr<Animal> ptr1(new Cow());
-  std::cout << "ptr1: " << ptr1.get() << std::endl;
+  std::cout << "ptr1(" << &ptr1 << "): " << ptr1.get() << std::endl;
   ptr1->MakeSound();
 
   std::cout << "\nCreating ptr2" << std::endl;
   auto ptr2 = make_nft<Duck>();
-  std::cout << "ptr2: " << ptr1.get() << std::endl;
+  std::cout << "ptr2(" << &ptr2 << "): " << ptr1.get() << std::endl;
   ptr2->MakeSound();
 
   std::cout << "\nMoving ptr1 = std::move(ptr2)" << std::endl;
