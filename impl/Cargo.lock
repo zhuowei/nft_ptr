@@ -796,6 +796,7 @@ dependencies = [
  "cpp_demangle",
  "env_logger",
  "log",
+ "percent-encoding",
  "tokio",
  "web3",
 ]

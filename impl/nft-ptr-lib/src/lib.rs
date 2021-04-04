@@ -7,7 +7,7 @@ use web3::contract::Contract;
 use web3::types::{Address, U256};
 
 const NUM_CONFIRMATIONS: usize = 0;
-const TOKEN_BASE_URI: &str = "https://nft-ptr.notnow.dev/";
+const TOKEN_BASE_URI: &str = "https://nft-ptr.notnow.dev/?";
 
 pub struct NftPtrLib<T: web3::Transport> {
     web3: Web3<T>,
@@ -102,14 +102,17 @@ impl<T: web3::Transport> NftPtrLib<T> {
     ) {
         let caller_pc_lineinfo = string_for_pc_addr(caller_pc);
         let caller_pc_backtrace_str = format!("{:x} {}", owner_address, caller_pc_lineinfo,);
-        let object_type_demangled = demangle_typename(object_type);
+        let object_type_demangled = demangle_cpp(object_type);
         let token_uri = format!("{:x} {}", value, object_type);
+        let token_uri_encoded =
+            percent_encoding::utf8_percent_encode(&token_uri, percent_encoding::NON_ALPHANUMERIC)
+                .to_string();
         let owner_contract = self.mem_address_to_owner_contract_address(owner_address);
         let previous_owner_contract =
             self.mem_address_to_owner_contract_address(previous_owner_address);
         // TODO(zhuowei): figure out what to do with the caller_pc
         info!(
-            "Transferring 0x{:x} ({}) from 0x{:x} ({}) to 0x{:x} ({}) at PC=0x{:x} ({})",
+            "Transferring 0x{:x} ({}) to 0x{:x} ({}) from 0x{:x} ({}) at PC=0x{:x} ({})",
             value,
             object_type_demangled,
             owner_address,
@@ -129,7 +132,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
                     owner_contract,
                     previous_owner_contract,
                     U256::from(value),
-                    token_uri,
+                    token_uri_encoded,
                     caller_pc_backtrace_str,
                 ),
                 self.account,
@@ -153,7 +156,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
         let name = format!(
             "{:x} {} {}",
             owner_address,
-            ptr_object_type,
+            demangle_cpp(ptr_object_type),
             string_for_pc_addr(caller_pc),
         );
         info!("Deploying contract for nft_ptr {}", name);
@@ -213,21 +216,26 @@ fn string_for_pc_addr(pc_addr: u64) -> String {
     let mut outstr: Option<String> = None;
     let mut once: bool = false;
     backtrace::resolve(pc_addr as _, |symbol| {
-        if once || symbol.filename().is_none() || symbol.lineno().is_none() {
+        if once || symbol.name().is_none() {
             return;
         }
         once = true;
-        let s = format!(
-            "{}:{}",
-            symbol
-                .filename()
-                .unwrap()
-                .file_name()
-                .unwrap()
-                .to_string_lossy(),
-            symbol.lineno().unwrap()
-        );
-        outstr = Some(s);
+        if symbol.filename().is_some() && symbol.lineno().is_some() {
+            let s = format!(
+                "{} ({}:{})",
+                demangle_cpp(symbol.name().unwrap().as_str().unwrap()),
+                symbol
+                    .filename()
+                    .unwrap()
+                    .file_name()
+                    .unwrap()
+                    .to_string_lossy(),
+                symbol.lineno().unwrap()
+            );
+            outstr = Some(s);
+        } else {
+            outstr = Some(demangle_cpp(symbol.name().unwrap().as_str().unwrap()));
+        }
     });
     if !once {
         return format!("{:x}", pc_addr);
@@ -235,7 +243,7 @@ fn string_for_pc_addr(pc_addr: u64) -> String {
     return outstr.unwrap();
 }
 
-fn demangle_typename(typename: &str) -> String {
+fn demangle_cpp(typename: &str) -> String {
     // I could just call abi::__cxx_demangle in the C++, but lol WRITE IT IN RUST
     let demangled = cpp_demangle::Symbol::new(typename);
     if demangled.is_ok() {
@@ -252,7 +260,7 @@ mod tests {
         assert_eq!(2 + 2, 4);
     }
     #[test]
-    fn demangle_typename_example() {
-        assert_eq!(demangle_typename("P3Cow"), "Cow*");
+    fn demangle_cpp_example() {
+        assert_eq!(demangle_cpp("P3Cow"), "Cow*");
     }
 }
