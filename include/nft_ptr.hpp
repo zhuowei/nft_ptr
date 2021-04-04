@@ -39,7 +39,12 @@ class nft_ptr final {
   }
 
   ~nft_ptr() {
-    reset();
+    // D1 destructor, so need to do (1)??
+    void* caller_pc = __builtin_return_address(1);
+    if (ptr_) {
+      SendMoveToken(/*owner=*/nullptr, this, ptr_, caller_pc);
+      delete ptr_;
+    }
     WdbNftPtrDestroy(reinterpret_cast<uint64_t>(this));
   }
 
