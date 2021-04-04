@@ -52,29 +52,29 @@ void Zoo::MakeNoises() const {
 }
 
 int main(int argc, char** argv) {
-  std::cout << "Creating ptr1!\n";
+  std::cout << "Creating ptr1!" << std::endl;
   nft_ptr<Animal> ptr1(new Cow());
-  std::cout << "\nptr1: " << ptr1.get() << "\n";
+  std::cout << "\nptr1: " << ptr1.get() << std::endl;
   ;
   ptr1->MakeSound();
-  std::cout << "\nCreating ptr2!\n";
+  std::cout << "\nCreating ptr2" << std::endl;
   auto ptr2 = make_nft<Duck>();
-  std::cout << "\nptr2: " << ptr1.get() << "\n";
+  std::cout << "\nptr2: " << ptr1.get() << std::endl;
   ;
   ptr2->MakeSound();
-  std::cout << "Moving ptr1 = std::move(ptr2)\n";
+  std::cout << "Moving ptr1 = std::move(ptr2)" << std::endl;
   ptr1 = std::move(ptr2);
   std::cout << "\nptr1 after move: " << ptr1.get()
-            << "\nptr2 after move: " << ptr2.get() << "\n";
+            << "\nptr2 after move: " << ptr2.get() << std::endl;
 
-  std::cout << "Creating a zoo!\n\n";
+  std::cout << "\nCreating a zoo!" << std::endl;
   Zoo zoo;
-  std::cout << "\nAdding animal from ptr1\n";
+  std::cout << "Adding animal from ptr1" << std::endl;
   zoo.AddAnimal(std::move(ptr1));
-  std::cout << "\nAdding new animal\n";
+  std::cout << "\nAdding new animal" << std::endl;
   zoo.AddAnimal(make_nft<Seal>());
-  std::cout << "\nMaking noises:\n";
+  std::cout << "\nMaking noises:" << std::endl;
   zoo.MakeNoises();
-  std::cout << "\nDestroying everything\n";
+  std::cout << "\nDestroying everything" << std::endl;
   return 0;
 }
