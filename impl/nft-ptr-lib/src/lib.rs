@@ -16,6 +16,7 @@ pub struct NftPtrLib<T: web3::Transport> {
     instance_to_contract: HashMap<u64, Contract<T>>,
     num_confirmations: usize,
     network_id: u32,
+    use_hardcoded_gas: bool,
 }
 
 impl<T: web3::Transport> NftPtrLib<T> {
@@ -31,6 +32,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
             instance_to_contract: HashMap::new(),
             num_confirmations,
             network_id: 0,
+            use_hardcoded_gas: std::env::var("NFT_PTR_NO_HARDCODED_GAS").is_err(),
         }
     }
     pub async fn initialize(&mut self) {
@@ -77,7 +79,9 @@ impl<T: web3::Transport> NftPtrLib<T> {
             // "VM Exception while processing transaction: revert"
             //opt.value = Some(5.into());
             //opt.gas_price = Some(5.into());
-            opt.gas = Some(6_000_000.into());
+            if self.use_hardcoded_gas {
+                opt.gas = Some(6_000_000.into());
+            }
         }))
         .execute(
             bytecode,
@@ -85,7 +89,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
                 // see NftPtrToken.sol's constructor
                 /*name*/
                 format!(
-                    "NftPtrToken_{}_{}",
+                    "NftPtrToken {} {}",
                     Path::new(&std::env::args().nth(0).unwrap())
                         .file_name()
                         .unwrap()
@@ -125,7 +129,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
         let caller_pc_lineinfo = string_for_pc_addr(caller_pc);
         let caller_pc_backtrace_str = format!("{:x} {}", owner_address, caller_pc_lineinfo,);
         let object_type_demangled = demangle_cpp(object_type);
-        let token_uri = format!("{:x} {}", value, object_type);
+        let token_uri = format!("{:x} {}", value, object_type_demangled);
         let token_uri_encoded =
             percent_encoding::utf8_percent_encode(&token_uri, percent_encoding::NON_ALPHANUMERIC)
                 .to_string();
@@ -159,7 +163,9 @@ impl<T: web3::Transport> NftPtrLib<T> {
                 ),
                 self.account,
                 web3::contract::Options::with(|opt| {
-                    opt.gas = Some(1_000_000.into());
+                    if self.use_hardcoded_gas {
+                        opt.gas = Some(220_000.into());
+                    }
                 }),
                 self.num_confirmations,
             )
@@ -196,13 +202,15 @@ impl<T: web3::Transport> NftPtrLib<T> {
             include_bytes!("../../../contracts/out/NftPtrOwner.json"),
         )
         .unwrap()
-        .confirmations(NUM_CONFIRMATIONS)
+        .confirmations(self.num_confirmations)
         .options(web3::contract::Options::with(|opt| {
             // TODO(zhuowei): why does leaving this uncommented give me
             // "VM Exception while processing transaction: revert"
             //opt.value = Some(5.into());
             //opt.gas_price = Some(5.into());
-            opt.gas = Some(6_000_000.into());
+            if self.use_hardcoded_gas {
+                opt.gas = Some(720_000.into());
+            }
         }))
         .execute(
             bytecode,
