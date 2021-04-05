@@ -14,34 +14,52 @@ pub struct NftPtrLib<T: web3::Transport> {
     pub account: Address,
     token_contract: Option<Contract<T>>,
     instance_to_contract: HashMap<u64, Contract<T>>,
+    num_confirmations: usize,
+    network_id: u32,
 }
 
 impl<T: web3::Transport> NftPtrLib<T> {
     pub fn new(transport: T) -> NftPtrLib<T> {
         let web3 = web3::Web3::new(transport);
+        let num_confirmations = std::env::var("NFT_PTR_NUM_CONFIRMATIONS")
+            .map(|a| a.parse::<usize>().unwrap())
+            .unwrap_or(NUM_CONFIRMATIONS);
         NftPtrLib {
             web3: web3,
             account: Address::zero(),
             token_contract: None,
             instance_to_contract: HashMap::new(),
+            num_confirmations,
+            network_id: 0,
         }
     }
     pub async fn initialize(&mut self) {
         self.check_not_prod().await;
-        self.account = self.web3.personal().list_accounts().await.unwrap()[0];
+        self.account = self.web3.eth().accounts().await.unwrap()[0];
         info!("Account: {:#x}", self.account);
+        if self.is_goerli() {
+            info!("https://goerli.etherscan.io/address/{:#x}", self.account);
+        }
+        info!("Deploying NFT contract!");
         self.deploy_token_contract().await;
         info!(
             "Token contract deployed at {:#x}",
             self.token_contract.as_ref().unwrap().address()
         );
+        if self.is_goerli() {
+            info!(
+                "https://goerli.etherscan.io/token/{:#x}",
+                self.token_contract.as_ref().unwrap().address()
+            );
+        }
     }
-    async fn check_not_prod(&self) {
+    async fn check_not_prod(&mut self) {
         let version = self.web3.net().version().await.unwrap();
         info!("Connected to network id {}", version);
         if version == "1" {
             panic!("Cowardly refusing to run on mainnet and waste real \"money\"");
         }
+        self.network_id = version.parse::<u32>().unwrap();
     }
     async fn deploy_token_contract(&mut self) {
         // rust-web3/examples/contract.rs
@@ -53,7 +71,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
             include_bytes!("../../../contracts/out/NftPtrToken.json"),
         )
         .unwrap()
-        .confirmations(NUM_CONFIRMATIONS)
+        .confirmations(self.num_confirmations)
         .options(web3::contract::Options::with(|opt| {
             // TODO(zhuowei): why does leaving this uncommented give me
             // "VM Exception while processing transaction: revert"
@@ -143,11 +161,18 @@ impl<T: web3::Transport> NftPtrLib<T> {
                 web3::contract::Options::with(|opt| {
                     opt.gas = Some(1_000_000.into());
                 }),
-                NUM_CONFIRMATIONS,
+                self.num_confirmations,
             )
             .await
             .unwrap();
         info!("Transaction: {:#x}", transaction.transaction_hash);
+        if self.is_goerli() {
+            info!(
+                "https://testnets.opensea.io/assets/goerli/{:#x}/{:#x}",
+                self.token_contract.as_ref().unwrap().address(),
+                value
+            )
+        }
     }
     pub async fn ptr_initialize(
         &mut self,
@@ -195,6 +220,12 @@ impl<T: web3::Transport> NftPtrLib<T> {
             name,
             contract.address()
         );
+        if self.is_goerli() {
+            info!(
+                "https://goerli.etherscan.io/token/{:#x}",
+                contract.address()
+            );
+        }
         self.instance_to_contract.insert(owner_address, contract);
     }
 
@@ -202,6 +233,9 @@ impl<T: web3::Transport> NftPtrLib<T> {
         // Don't actually destroy the contract so we can inspect later
         // TODO(zhuowei): actually destroy this pointer?
         self.instance_to_contract.remove(&owner_address);
+    }
+    fn is_goerli(&self) -> bool {
+        self.network_id == 5
     }
 }
 
@@ -224,7 +258,12 @@ pub async fn make_nft_ptr_lib() -> NftPtrLib<NftPtrLibTransport> {
     let transport = if ipc_path.is_ok() {
         NftPtrLibTransport::Right(web3::transports::Ipc::new(ipc_path.unwrap()).await.unwrap())
     } else {
-        NftPtrLibTransport::Left(web3::transports::Http::new("http://127.0.0.1:7545").unwrap())
+        NftPtrLibTransport::Left(
+            web3::transports::Http::new(
+                &std::env::var("NFT_PTR_HTTP").unwrap_or("http://127.0.0.1:7545".to_string()),
+            )
+            .unwrap(),
+        )
     };
     NftPtrLib::new(transport)
 }
