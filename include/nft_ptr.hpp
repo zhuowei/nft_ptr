@@ -46,6 +46,14 @@ class nft_ptr final {
     SendMoveToken(this, /*previous_owner=*/nullptr, ptr, caller_pc);
   }
 
+  // empty constructor
+  nft_ptr() : ptr_(nullptr) {
+    void* caller_pc = __builtin_return_address(1);
+    WdbNftPtrInitialize(reinterpret_cast<uint64_t>(this),
+                        reinterpret_cast<uint64_t>(caller_pc),
+                        typeid(T).name());
+  }
+
   ~nft_ptr() {
     // D1 destructor, so need to do (1)??
     void* caller_pc = __builtin_return_address(1);
