@@ -3,4 +3,5 @@
 members = [
     "nft-ptr",
     "nft-ptr-lib",
+    "keystore-loader",
 ]

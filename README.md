@@ -12,7 +12,12 @@ C++ `std::unique_ptr` smart pointer replacement that ensures uniqueness by repre
 
 All instructions tested on macOS 11.2.1.
 
-You need [Rustup](https://www.rust-lang.org), [npm](https://nodejs.org/), [Truffle](https://www.trufflesuite.com/truffle), and a C++17 compiler.
+You need:
+- [Rustup](https://www.rust-lang.org)
+- [npm](https://nodejs.org/)
+- [Truffle](https://www.trufflesuite.com/truffle)
+- [OpenSSL](https://github.com/sfackler/rust-openssl/blob/140ec193d5ad1ab91321069ccb2f86be947fafee/openssl/src/lib.rs#L30) (`brew install openssl@1.1`)
+- and a C++17 compiler (Tested with Clang from Xcode 14.3).
 
 ```
 cd contracts
