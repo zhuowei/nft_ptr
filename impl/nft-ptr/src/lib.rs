@@ -17,13 +17,15 @@ static NFTPTRLIB: SyncLazy<Mutex<NftPtrLib<NftPtrLibTransport>>> = SyncLazy::new
     Mutex::new(lib)
 });
 
+/// # Safety
+/// ptr_object_type should contain a valid null-terminated string.
 #[no_mangle]
-pub extern "C" fn WdbNftPtrInitialize(
+pub unsafe extern "C" fn WdbNftPtrInitialize(
     owner_address: u64,
     caller_pc: u64,
     ptr_object_type: *const i8,
 ) {
-    let ptr_object_type_str = unsafe { CStr::from_ptr(ptr_object_type) }.to_str().unwrap();
+    let ptr_object_type_str = CStr::from_ptr(ptr_object_type).to_str().unwrap();
     RUNTIME.block_on(NFTPTRLIB.lock().unwrap().ptr_initialize(
         owner_address,
         caller_pc,
@@ -31,15 +33,17 @@ pub extern "C" fn WdbNftPtrInitialize(
     ));
 }
 
+/// # Safety
+/// object_type should contain a valid null-terminated string.
 #[no_mangle]
-pub extern "C" fn WdbNftPtrMoveToken(
+pub unsafe extern "C" fn WdbNftPtrMoveToken(
     owner_address: u64,
     previous_owner_address: u64,
     value: u64,
     caller_pc: u64,
     object_type: *const i8,
 ) {
-    let object_type_str = unsafe { CStr::from_ptr(object_type) }.to_str().unwrap();
+    let object_type_str = CStr::from_ptr(object_type).to_str().unwrap();
     RUNTIME.block_on(NFTPTRLIB.lock().unwrap().move_token(
         owner_address,
         previous_owner_address,

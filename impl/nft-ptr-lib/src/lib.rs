@@ -37,7 +37,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
             None
         };
         NftPtrLib {
-            web3: web3,
+            web3,
             account: Address::zero(),
             token_contract: None,
             instance_to_contract: HashMap::new(),
@@ -105,7 +105,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
             /*name*/
             format!(
                 "NftPtrToken {} {}",
-                Path::new(&std::env::args().nth(0).unwrap())
+                Path::new(&std::env::args().next().unwrap())
                     .file_name()
                     .unwrap()
                     .to_string_lossy(),
@@ -141,7 +141,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
         if self.instance_to_contract.contains_key(&a) {
             return self.instance_to_contract[&a].address();
         }
-        return self.account;
+        self.account
     }
 
     pub async fn move_token(
@@ -318,7 +318,8 @@ pub async fn make_nft_ptr_lib() -> NftPtrLib<NftPtrLibTransport> {
     } else {
         NftPtrLibTransport::Left(
             web3::transports::Http::new(
-                &std::env::var("NFT_PTR_HTTP").unwrap_or("http://127.0.0.1:7545".to_string()),
+                &std::env::var("NFT_PTR_HTTP")
+                    .unwrap_or_else(|_| "http://127.0.0.1:7545".to_string()),
             )
             .unwrap(),
         )
@@ -354,16 +355,16 @@ fn string_for_pc_addr(pc_addr: u64) -> String {
     if !once {
         return format!("{:x}", pc_addr);
     }
-    return outstr.unwrap();
+    outstr.unwrap()
 }
 
 fn demangle_cpp(typename: &str) -> String {
     // I could just call abi::__cxx_demangle in the C++, but lol WRITE IT IN RUST
     let demangled = cpp_demangle::Symbol::new(typename);
-    if demangled.is_ok() {
-        return demangled.unwrap().to_string();
+    if let Ok(demangled_out) = demangled {
+        return demangled_out.to_string();
     }
-    return typename.to_string();
+    typename.to_string()
 }
 
 #[cfg(test)]
