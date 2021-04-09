@@ -2,6 +2,7 @@
 // Created because both ethsign and OpenEthereum are GPLv3
 // and nft_ptr is ostensibly a library that others can integrate
 
+use openssl::pkcs5::scrypt;
 use secp256k1::SecretKey;
 use serde::Deserialize;
 
@@ -28,9 +29,9 @@ struct KeystoreCipherParams {
 struct KeystoreKdfParams {
     dklen: u32,
     salt: String,
-    n: u32,
-    r: u32,
-    p: u32,
+    n: u64,
+    r: u64,
+    p: u64,
 }
 
 // Loads an account and its associated SecretKey from a keystore.
@@ -38,10 +39,46 @@ struct KeystoreKdfParams {
 pub fn load_keystore_from_string(
     input: &str,
     password: &str,
-) -> Result<SecretKey, serde_json::Error> {
+) -> Result<SecretKey, Box<dyn std::error::Error>> {
     let keystore: Keystore = serde_json::from_str(input)?;
-    println!("{}", keystore.crypto.ciphertext);
-    panic!("Unimplemented");
+    if keystore.crypto.cipher != "aes-128-ctr" {
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "cipher is not aes-128-ctr",
+        )));
+    }
+    if keystore.crypto.kdf != "scrypt" {
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "kdf is not scrypt",
+        )));
+    }
+    let kdfparams = keystore.crypto.kdfparams;
+    if kdfparams.dklen != 32 {
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "dklen != 32?!",
+        )));
+    }
+    let mut key: [u8; 32] = [0; 32];
+    scrypt(
+        password.as_bytes(),
+        &hex::decode(kdfparams.salt)?,
+        kdfparams.n,
+        kdfparams.r,
+        kdfparams.p,
+        0x10000000,
+        &mut key,
+    )?;
+    let cipher = openssl::symm::Cipher::aes_128_ctr();
+    let decrypted = openssl::symm::decrypt(
+        cipher,
+        &key[0..16],
+        Some(&hex::decode(keystore.crypto.cipherparams.iv)?),
+        &hex::decode(keystore.crypto.ciphertext)?,
+    )?;
+    let private_key = SecretKey::from_slice(&decrypted)?;
+    Ok(private_key)
 }
 
 #[cfg(test)]
@@ -52,6 +89,13 @@ mod tests {
         let key =
             load_keystore_from_string(include_str!("SampleKeystore.keystore"), "sample password")
                 .unwrap();
-        assert_eq!(2 + 2, 4);
+        assert_eq!(
+            key,
+            SecretKey::from_slice(&[
+                222, 78, 76, 175, 229, 33, 189, 156, 88, 48, 226, 94, 249, 121, 157, 42, 198, 254,
+                173, 241, 20, 48, 176, 105, 130, 28, 18, 174, 48, 215, 15, 84
+            ])
+            .unwrap()
+        );
     }
 }
