@@ -4,6 +4,7 @@ use std::path::Path;
 use std::time::SystemTime;
 use web3::api::Web3;
 use web3::contract::Contract;
+use web3::signing::Key;
 use web3::types::{Address, U256};
 
 const NUM_CONFIRMATIONS: usize = 0;
@@ -17,6 +18,7 @@ pub struct NftPtrLib<T: web3::Transport> {
     num_confirmations: usize,
     network_id: u32,
     use_hardcoded_gas: bool,
+    account_private_key: Option<secp256k1::SecretKey>,
 }
 
 impl<T: web3::Transport> NftPtrLib<T> {
@@ -25,6 +27,15 @@ impl<T: web3::Transport> NftPtrLib<T> {
         let num_confirmations = std::env::var("NFT_PTR_NUM_CONFIRMATIONS")
             .map(|a| a.parse::<usize>().unwrap())
             .unwrap_or(NUM_CONFIRMATIONS);
+        let account_private_key = if let Ok(keystore_path) = std::env::var("NFT_PTR_KEYSTORE") {
+            let keystore_str = std::fs::read_to_string(keystore_path).unwrap();
+            let password = std::env::var("NFT_PTR_PASSWORD").unwrap();
+            let keystore =
+                keystore_loader::load_keystore_from_string(&keystore_str, &password).unwrap();
+            Some(keystore)
+        } else {
+            None
+        };
         NftPtrLib {
             web3: web3,
             account: Address::zero(),
@@ -33,11 +44,17 @@ impl<T: web3::Transport> NftPtrLib<T> {
             num_confirmations,
             network_id: 0,
             use_hardcoded_gas: std::env::var("NFT_PTR_NO_HARDCODED_GAS").is_err(),
+            account_private_key,
         }
     }
     pub async fn initialize(&mut self) {
         self.check_not_prod().await;
-        self.account = self.web3.eth().accounts().await.unwrap()[0];
+        if self.account_private_key.is_none() {
+            self.account = self.web3.eth().accounts().await.unwrap()[0];
+        } else {
+            self.account =
+                web3::signing::SecretKeyRef::new(&self.account_private_key.unwrap()).address();
+        }
         info!("Account: {:#x}", self.account);
         if self.is_goerli() {
             info!("https://goerli.etherscan.io/address/{:#x}", self.account);
@@ -68,7 +85,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
         // TODO(zhuowei): understand this
         let my_account = self.account;
         let bytecode = include_str!("../../../contracts/out/NftPtrToken.code");
-        let contract = Contract::deploy(
+        let contract_builder = Contract::deploy(
             self.web3.eth(),
             include_bytes!("../../../contracts/out/NftPtrToken.json"),
         )
@@ -82,31 +99,40 @@ impl<T: web3::Transport> NftPtrLib<T> {
             if self.use_hardcoded_gas {
                 opt.gas = Some(6_000_000.into());
             }
-        }))
-        .execute(
-            bytecode,
-            (
-                // see NftPtrToken.sol's constructor
-                /*name*/
-                format!(
-                    "NftPtrToken {} {}",
-                    Path::new(&std::env::args().nth(0).unwrap())
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy(),
-                    SystemTime::now()
-                        .duration_since(SystemTime::UNIX_EPOCH)
-                        .unwrap()
-                        .as_millis()
-                ),
-                /*symbol*/
-                "NFT".to_owned(),
-                /*baseTokenURI*/
-                TOKEN_BASE_URI.to_owned(),
+        }));
+        let contract_args = (
+            // see NftPtrToken.sol's constructor
+            /*name*/
+            format!(
+                "NftPtrToken {} {}",
+                Path::new(&std::env::args().nth(0).unwrap())
+                    .file_name()
+                    .unwrap()
+                    .to_string_lossy(),
+                SystemTime::now()
+                    .duration_since(SystemTime::UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis()
             ),
-            my_account,
-        )
-        .await
+            /*symbol*/
+            "NFT".to_owned(),
+            /*baseTokenURI*/
+            TOKEN_BASE_URI.to_owned(),
+        );
+        let contract = if self.account_private_key.is_none() {
+            contract_builder
+                .execute(bytecode, contract_args, my_account)
+                .await
+        } else {
+            contract_builder
+                .sign_with_key_and_execute(
+                    bytecode,
+                    contract_args,
+                    web3::signing::SecretKeyRef::new(&self.account_private_key.unwrap()),
+                    Some(self.web3.eth().chain_id().await.unwrap().as_u64()),
+                )
+                .await
+        }
         .unwrap();
         self.token_contract = Some(contract);
     }
@@ -148,29 +174,42 @@ impl<T: web3::Transport> NftPtrLib<T> {
             caller_pc,
             caller_pc_lineinfo,
         );
-        let transaction = self
-            .token_contract
-            .as_ref()
-            .unwrap()
-            .call_with_confirmations(
-                "mintOrMove",
-                (
-                    owner_contract,
-                    previous_owner_contract,
-                    U256::from(value),
-                    token_uri_encoded,
-                    caller_pc_backtrace_str,
-                ),
-                self.account,
-                web3::contract::Options::with(|opt| {
-                    if self.use_hardcoded_gas {
-                        opt.gas = Some(220_000.into());
-                    }
-                }),
-                self.num_confirmations,
-            )
-            .await
-            .unwrap();
+        let contract = self.token_contract.as_ref().unwrap();
+        let transaction_method = "mintOrMove";
+        let transaction_args = (
+            owner_contract,
+            previous_owner_contract,
+            U256::from(value),
+            token_uri_encoded,
+            caller_pc_backtrace_str,
+        );
+        let transaction_options = web3::contract::Options::with(|opt| {
+            if self.use_hardcoded_gas {
+                opt.gas = Some(220_000.into());
+            }
+        });
+        let transaction = if self.account_private_key.is_none() {
+            contract
+                .call_with_confirmations(
+                    transaction_method,
+                    transaction_args,
+                    self.account,
+                    transaction_options,
+                    self.num_confirmations,
+                )
+                .await
+        } else {
+            contract
+                .signed_call_with_confirmations(
+                    transaction_method,
+                    transaction_args,
+                    transaction_options,
+                    self.num_confirmations,
+                    web3::signing::SecretKeyRef::new(&self.account_private_key.unwrap()),
+                )
+                .await
+        }
+        .unwrap();
         info!("Transaction: {:#x}", transaction.transaction_hash);
         if self.is_goerli() {
             info!(
@@ -197,7 +236,7 @@ impl<T: web3::Transport> NftPtrLib<T> {
         info!("Deploying contract for nft_ptr {}", name);
         let my_account = self.account;
         let bytecode = include_str!("../../../contracts/out/NftPtrOwner.code");
-        let contract = Contract::deploy(
+        let contract_builder = Contract::deploy(
             self.web3.eth(),
             include_bytes!("../../../contracts/out/NftPtrOwner.json"),
         )
@@ -211,17 +250,28 @@ impl<T: web3::Transport> NftPtrLib<T> {
             if self.use_hardcoded_gas {
                 opt.gas = Some(720_000.into());
             }
-        }))
-        .execute(
-            bytecode,
-            (
-                // see NftPtrOwner.sol's constructor
-                /*name*/
-                name.to_owned(),
-            ),
-            my_account,
-        )
-        .await
+        }));
+
+        let contract_args = (
+            // see NftPtrOwner.sol's constructor
+            /*name*/
+            name.to_owned(),
+        );
+
+        let contract = if self.account_private_key.is_none() {
+            contract_builder
+                .execute(bytecode, contract_args, my_account)
+                .await
+        } else {
+            contract_builder
+                .sign_with_key_and_execute(
+                    bytecode,
+                    contract_args,
+                    web3::signing::SecretKeyRef::new(&self.account_private_key.unwrap()),
+                    Some(self.web3.eth().chain_id().await.unwrap().as_u64()),
+                )
+                .await
+        }
         .unwrap();
         info!(
             "Deployed contract for nft_ptr {} at {:#x}",

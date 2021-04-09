@@ -806,8 +806,10 @@ dependencies = [
  "backtrace",
  "cpp_demangle",
  "env_logger",
+ "keystore-loader",
  "log",
  "percent-encoding",
+ "secp256k1",
  "tokio",
  "web3",
 ]
