@@ -12,8 +12,12 @@ pub fn load_keystore_from_string(input: &str, password: &str) -> Result<SecretKe
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     #[test]
     fn it_works() {
+        let key =
+            load_keystore_from_string(include_str!("SampleKeystore.keystore"), "sample password")
+                .unwrap();
         assert_eq!(2 + 2, 4);
     }
 }
