@@ -65,6 +65,10 @@ A full example program can be found at [example/example.cpp](example/example.cpp
 
 A longer example, which shows using `nft_ptr` with function calls and STL containers, can be found at [example/long_example.cpp](example/long_example.cpp) along with its [output](example/logs/log_long_example_goerli.txt).
 
+# Why?
+
+- Written in Rust for the hipster cred.
+
 # Performance
 
 `nft_ptr` has negligible performance overhead compared to `std::unique_ptr`, as shown by this benchmark on [our example program](example/example.cpp):
@@ -76,13 +80,33 @@ A longer example, which shows using `nft_ptr` with function calls and STL contai
 
 # What works
 
-- Deploying ERC721 smart contract on program start
-- Call smart contract to create token when a pointer is transferred into an `nft_ptr`
-- Tested on local chain using Ganache
+- Deploying ERC-721 smart contract on program start
 - Create smart contract for each `nft_ptr` instance
+- Call smart contract to create token when a pointer is transferred into an `nft_ptr`
 - Transfer token when pointer moved between `nft_ptr`s
 
 For more information, please read our [white paper](white_paper.pdf).
+
+# Future steps
+
+`nft_ptr` instances are themselves [ERC-20 tokens](https://goerli.etherscan.io/token/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d) with 0 supply, for forward compatibility with our next library, `nft_shared_ptr`.
+
+`nft_shared_ptr` will implement reference counting by selling shares to the owned object until the SEC complains.
+
+# Sponsor development
+
+For a limited time, you can buy any Git commit from this repository as a Non-Fungible Token on my Content-First Multimedia Proof-of-Authority revision-controlled realtime collaborative private enterprise [Blockchain](https://docs.google.com/document/d/1d03A_-BAgwFZgmHh3TzEbGsvQ33albI9WT3fLa9gjtQ/edit) (a shared Google Doc).
+
+You can also help by going full `r/roastme` on my code: this is only my second Rust project, and I would appreciate guidance on my way to [carcinization](https://en.wikipedia.org/wiki/Carcinisation).
+
+# What I learned
+
+- how C++ smart pointers are implemented
+- how to implement a Non-Fungible Token
+- how the Ethereum ecosystem has evolved since I wrote my last smart contract in 2017
+- how to write a (trivial) program in Rust without fighting the borrow checker once
+- how to use [rust-web3](https://github.com/tomusdrw/rust-web3), [serde_json](https://github.com/serde-rs/json), and the [openssl](https://docs.rs/openssl/0.10.33/openssl/) crate
+- how to call Rust from C
 
 # Building
 
@@ -109,7 +133,7 @@ cd ../example
 
 # Testing (local blockchain)
 
-Download and run [Ganache](https://www.trufflesuite.com/ganache) to setup a local blockchain. Then, run
+Download and run [Ganache](https://www.trufflesuite.com/ganache) to setup a private local blockchain. Then, run
 
 ```
 cd example
@@ -118,7 +142,25 @@ RUST_BACKTRACE=1 RUST_LOG=info ./example
 
 # Testing (Görli testnet)
 
-Create a new wallet and get some Görli test ethers from the [Görli faucet](https://faucet.goerli.mudit.blog).
+To run this against a public test blockchain, the easiest way is to use a hosted node.
+
+Create a new keystore file on [MyEtherWallet](https://www.myetherwallet.com/create-wallet) and get some Görli test ethers from the [Görli faucet](https://faucet.goerli.mudit.blog).
+
+**Do not use an existing wallet or password!** `nft_ptr` is very insecure; do not re-use a wallet or a password you care about, even for these worthless fake test ethers.
+
+Run the example using your new keystore and a hosted node:
+
+```
+RUST_BACKTRACE=1 RUST_LOG=info NFT_PTR_HTTP="https://nodes.mewapi.io/rpc/goerli" \
+NFT_PTR_NUM_CONFIRMATIONS=1 \
+NFT_PTR_KEYSTORE="/path/to/your/MewWallet.keystore" \
+NFT_PTR_PASSWORD="sample password" \
+exec ./example
+```
+
+# Testing (Görli testnet + local lite node)
+
+You can also run the example against a local lite node.
 
 Download Geth and start a lite node connected to the Görli testnet:
 
@@ -132,10 +174,10 @@ Stop Geth and import your testnet wallet:
 cp ~/Downloads/MewWallet.keystore ~/Library/Ethereum/goerli/keystore/
 ```
 
-Restart Geth and unlock your testnet wallet:
+Restart Geth and unlock your testnet wallet: **This is insecure!**
 
 ```
-./geth --goerli --unlock 0x<address> --syncmode light
+./geth --goerli --syncmode light --unlock 0x<address> --http --allow-insecure-unlock
 ```
 
 Enter your password, then hit Enter. It should say
@@ -144,13 +186,9 @@ Enter your password, then hit Enter. It should say
 Unlocked account                         address=0x<address>
 ```
 
-Finally run with IPC transport:
+Finally run with local HTTP transport:
 
 ```
 cd example
-RUST_BACKTRACE=1 RUST_LOG=info NFT_PTR_IPC=$HOME/Library/Ethereum/goerli/geth.ipc ./example
+./run.sh
 ```
-
-# Sponsor development
-
-For a limited time, you can buy any Git commit from this repository as a Non-Fungible Token on my Content-First Multimedia Proof-of-Authority revision-controlled realtime collaborative private enterprise [Blockchain](https://docs.google.com/document/d/1d03A_-BAgwFZgmHh3TzEbGsvQ33albI9WT3fLa9gjtQ/edit) (a shared Google Doc).
