@@ -1,5 +1,7 @@
 C++ `std::unique_ptr` that represents each object as an NFT on the Ethereum Blockchain.
 
+[![Build nft_ptr](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml/badge.svg)](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml)
+
 # Example: moving between two `nft_ptr`s
 
 ```cpp
