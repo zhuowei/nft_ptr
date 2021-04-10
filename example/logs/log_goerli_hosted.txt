@@ -1,0 +1,29 @@
+Creating ptr1!
+[2021-04-09T01:57:48Z INFO  nft_ptr_lib] Connected to network id 5
+[2021-04-09T01:57:48Z INFO  nft_ptr_lib] Account: 0xd54b39c6bb7774aba2be4b49dc2667332b737909
+[2021-04-09T01:57:48Z INFO  nft_ptr_lib] https://goerli.etherscan.io/address/0xd54b39c6bb7774aba2be4b49dc2667332b737909
+[2021-04-09T01:57:48Z INFO  nft_ptr_lib] Deploying NFT contract!
+[2021-04-09T01:58:18Z INFO  nft_ptr_lib] Token contract deployed at 0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d
+[2021-04-09T01:58:18Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d
+[2021-04-09T01:58:18Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7ffee35a78a8 Cow main (example.cpp:25)
+[2021-04-09T01:58:48Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7ffee35a78a8 Cow main (example.cpp:25) at 0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef
+[2021-04-09T01:58:48Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef
+[2021-04-09T01:58:48Z INFO  nft_ptr_lib] Transferring 0x7faa4bc09c90 (Cow) to 0x7ffee35a78a8 (0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef) from 0x0 (0xd54b39c6bb7774aba2be4b49dc2667332b737909) at PC=0x10c65a76f (main (example.cpp:25))
+[2021-04-09T01:59:18Z INFO  nft_ptr_lib] Transaction: 0x0a148cee1abe8d4b5721996ea3a107c87b526ded155dc2e3895f1f42983bd2e8
+[2021-04-09T01:59:18Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d/0x7faa4bc09c90
+ptr1(0x7ffee35a78a8): 0x7faa4bc09c90
+Moo!
+Creating ptr2!
+[2021-04-09T01:59:18Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7ffee35a7890 Animal main (example.cpp:30)
+[2021-04-09T01:59:48Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7ffee35a7890 Animal main (example.cpp:30) at 0x1564b0a7c258fc88a96aa9fe1c513101883abb13
+[2021-04-09T01:59:48Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x1564b0a7c258fc88a96aa9fe1c513101883abb13
+ptr2(0x7ffee35a7890): 0x0
+Moving: ptr2 = std::move(ptr1)
+[2021-04-09T01:59:48Z INFO  nft_ptr_lib] Transferring 0x7faa4bc09c90 (Cow) to 0x7ffee35a7890 (0x1564b0a7c258fc88a96aa9fe1c513101883abb13) from 0x7ffee35a78a8 (0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef) at PC=0x10c65a946 (main (example.cpp:33))
+[2021-04-09T02:00:15Z INFO  nft_ptr_lib] Transaction: 0xcbe06fdd54bd9d221993c875022fe2960128874811a25075d692cc638a28f290
+[2021-04-09T02:00:15Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d/0x7faa4bc09c90
+Moved: ptr1 = 0x0 ptr2 = 0x7faa4bc09c90
+Destroying objects
+[2021-04-09T02:00:15Z INFO  nft_ptr_lib] Transferring 0x7faa4bc09c90 (Cow) to 0x0 (0xd54b39c6bb7774aba2be4b49dc2667332b737909) from 0x7ffee35a7890 (0x1564b0a7c258fc88a96aa9fe1c513101883abb13) at PC=0x10c65aa50 (main (example.cpp:40))
+[2021-04-09T02:00:46Z INFO  nft_ptr_lib] Transaction: 0xac52fea39f6da815bf3acb271371613331ff2a641e150faf9e3bb285f0bbb1b7
+[2021-04-09T02:00:46Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d/0x7faa4bc09c90

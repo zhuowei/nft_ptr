@@ -1,0 +1,87 @@
+Creating ptr1!
+[2021-04-05T04:31:42Z INFO  nft_ptr_lib] Connected to network id 5
+[2021-04-05T04:31:42Z INFO  nft_ptr_lib] Account: 0xd54b39c6bb7774aba2be4b49dc2667332b737909
+[2021-04-05T04:31:42Z INFO  nft_ptr_lib] https://goerli.etherscan.io/address/0xd54b39c6bb7774aba2be4b49dc2667332b737909
+[2021-04-05T04:31:42Z INFO  nft_ptr_lib] Deploying NFT contract!
+[2021-04-05T04:34:10Z INFO  nft_ptr_lib] Token contract deployed at 0x71a9c16db2dc3581b26a0952534bfd6097a6bf12
+[2021-04-05T04:34:10Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12
+[2021-04-05T04:34:10Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7ffeecc7b938 Animal main (example.cpp:56)
+[2021-04-05T04:36:10Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7ffeecc7b938 Animal main (example.cpp:56) at 0xfa9f03c63010853cf571585021259755094ce2f6
+[2021-04-05T04:36:10Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0xfa9f03c63010853cf571585021259755094ce2f6
+[2021-04-05T04:36:10Z INFO  nft_ptr_lib] Transferring 0x7fa2cc409b70 (Cow) to 0x7ffeecc7b938 (0xfa9f03c63010853cf571585021259755094ce2f6) from 0x0 (0xd54b39c6bb7774aba2be4b49dc2667332b737909) at PC=0x102f883a0 (main (example.cpp:56))
+[2021-04-05T04:38:24Z INFO  nft_ptr_lib] Transaction: 0x63652d4671c48277f1acb6f1a05794f7d820ed886ff94620f583dc69cfbbc76c
+[2021-04-05T04:38:24Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc409b70
+ptr1(0x7ffeecc7b938): 0x7fa2cc409b70
+Moo!
+
+Creating ptr2
+[2021-04-05T04:38:24Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7ffeecc7b920 Duck main (example.cpp:61)
+[2021-04-05T04:40:30Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7ffeecc7b920 Duck main (example.cpp:61) at 0x1d1b22f077f49dca860c8b1116b75622b4cfe379
+[2021-04-05T04:40:30Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x1d1b22f077f49dca860c8b1116b75622b4cfe379
+[2021-04-05T04:40:30Z INFO  nft_ptr_lib] Transferring 0x7fa2cc707e40 (Duck) to 0x7ffeecc7b920 (0x1d1b22f077f49dca860c8b1116b75622b4cfe379) from 0x0 (0xd54b39c6bb7774aba2be4b49dc2667332b737909) at PC=0x102f884aa (main (example.cpp:61))
+[2021-04-05T04:42:08Z INFO  nft_ptr_lib] Transaction: 0xed2be7a5c0b8e3c9ee8d7e4fe4dd78251e05f0ffdbf7d9f0c9e59e59058ec5f4
+[2021-04-05T04:42:08Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc707e40
+ptr2(0x7ffeecc7b920): 0x7fa2cc409b70
+Quack!
+
+Moving ptr1 = std::move(ptr2)
+[2021-04-05T04:42:08Z INFO  nft_ptr_lib] Transferring 0x7fa2cc409b70 (Cow) to 0x0 (0xd54b39c6bb7774aba2be4b49dc2667332b737909) from 0x7ffeecc7b938 (0xfa9f03c63010853cf571585021259755094ce2f6) at PC=0x102f885ce (main (example.cpp:66))
+[2021-04-05T04:44:24Z INFO  nft_ptr_lib] Transaction: 0x87c8af90e0d14c69e05be210c3958fee3f9b4242f4e6bbd731f137ff1368a971
+[2021-04-05T04:44:24Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc409b70
+[2021-04-05T04:44:24Z INFO  nft_ptr_lib] Transferring 0x7fa2cc707e40 (Duck) to 0x7ffeecc7b938 (0xfa9f03c63010853cf571585021259755094ce2f6) from 0x7ffeecc7b920 (0x1d1b22f077f49dca860c8b1116b75622b4cfe379) at PC=0x102f885ce (main (example.cpp:66))
+[2021-04-05T04:46:11Z INFO  nft_ptr_lib] Transaction: 0xcd5baf80674b2f2925fc6bd47aeee10ad4015d122c77377f5f9b443d2f1748c6
+[2021-04-05T04:46:11Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc707e40
+
+ptr1 after move: 0x7fa2cc707e40
+ptr2 after move: 0x0
+
+Creating a zoo!
+Adding animal from ptr1
+[2021-04-05T04:46:11Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7ffeecc7b900 Animal main (example.cpp:73)
+[2021-04-05T04:48:39Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7ffeecc7b900 Animal main (example.cpp:73) at 0x0f647dfe86162258dc462dc8006fd139ab894269
+[2021-04-05T04:48:39Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x0f647dfe86162258dc462dc8006fd139ab894269
+[2021-04-05T04:48:39Z INFO  nft_ptr_lib] Transferring 0x7fa2cc707e40 (Duck) to 0x7ffeecc7b900 (0x0f647dfe86162258dc462dc8006fd139ab894269) from 0x7ffeecc7b938 (0xfa9f03c63010853cf571585021259755094ce2f6) at PC=0x102f8871d (main (example.cpp:73))
+[2021-04-05T04:50:08Z INFO  nft_ptr_lib] Transaction: 0xa4dd245810a98423596e3bbffe8474cf9b0e43a5a77826fa18daf4dbac3634d9
+[2021-04-05T04:50:08Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc707e40
+[2021-04-05T04:50:08Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7fa2cc413770 Animal void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881)
+[2021-04-05T04:52:43Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7fa2cc413770 Animal void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881) at 0x3e86c6ecd0989dc24b8a8f74eb9bf49576fe08d4
+[2021-04-05T04:52:43Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x3e86c6ecd0989dc24b8a8f74eb9bf49576fe08d4
+[2021-04-05T04:52:43Z INFO  nft_ptr_lib] Transferring 0x7fa2cc707e40 (Duck) to 0x7fa2cc413770 (0x3e86c6ecd0989dc24b8a8f74eb9bf49576fe08d4) from 0x7ffeecc7b900 (0x0f647dfe86162258dc462dc8006fd139ab894269) at PC=0x102f8a501 (void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881))
+[2021-04-05T04:54:38Z INFO  nft_ptr_lib] Transaction: 0xa9e97f2facf6bd726a8709818049bad1480d126080936ecfea375b81f4da6d95
+[2021-04-05T04:54:38Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc707e40
+Adding new animal
+[2021-04-05T04:54:38Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7ffeecc7b8f0 Seal main (example.cpp:75)
+[2021-04-05T04:56:31Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7ffeecc7b8f0 Seal main (example.cpp:75) at 0x26edeba920badb49cd3ecd7c2cb2798a30eca687
+[2021-04-05T04:56:31Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x26edeba920badb49cd3ecd7c2cb2798a30eca687
+[2021-04-05T04:56:31Z INFO  nft_ptr_lib] Transferring 0x7fa2cc40dff0 (Seal) to 0x7ffeecc7b8f0 (0x26edeba920badb49cd3ecd7c2cb2798a30eca687) from 0x0 (0xd54b39c6bb7774aba2be4b49dc2667332b737909) at PC=0x102f8877d (main (example.cpp:75))
+[2021-04-05T04:58:39Z INFO  nft_ptr_lib] Transaction: 0x6c77ed566b29b1a0fe50c24c5378b04fa510286dc4f011e1b211dbe19747481b
+[2021-04-05T04:58:39Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc40dff0
+[2021-04-05T04:58:39Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7ffeecc7b8f8 Animal main (example.cpp:75)
+[2021-04-05T05:01:00Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7ffeecc7b8f8 Animal main (example.cpp:75) at 0x5987d0f91019121d500b85b0046c48f6e53318fa
+[2021-04-05T05:01:00Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x5987d0f91019121d500b85b0046c48f6e53318fa
+[2021-04-05T05:01:00Z INFO  nft_ptr_lib] Transferring 0x7fa2cc40dff0 (Seal) to 0x7ffeecc7b8f8 (0x5987d0f91019121d500b85b0046c48f6e53318fa) from 0x7ffeecc7b8f0 (0x26edeba920badb49cd3ecd7c2cb2798a30eca687) at PC=0x102f8878f (main (example.cpp:75))
+[2021-04-05T05:02:39Z INFO  nft_ptr_lib] Transaction: 0x0ba27c600552290a7cabc7d86c4cfae74494ba596fd97a04159905f63418bd93
+[2021-04-05T05:02:39Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc40dff0
+[2021-04-05T05:02:39Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7fa2cc712148 Animal void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881)
+[2021-04-05T05:05:00Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7fa2cc712148 Animal void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881) at 0x84e2b1f7969cf65d72d867182f377d47580ee049
+[2021-04-05T05:05:00Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0x84e2b1f7969cf65d72d867182f377d47580ee049
+[2021-04-05T05:05:00Z INFO  nft_ptr_lib] Transferring 0x7fa2cc40dff0 (Seal) to 0x7fa2cc712148 (0x84e2b1f7969cf65d72d867182f377d47580ee049) from 0x7ffeecc7b8f8 (0x5987d0f91019121d500b85b0046c48f6e53318fa) at PC=0x102f8a501 (void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881))
+[2021-04-05T05:06:54Z INFO  nft_ptr_lib] Transaction: 0xf857f648d264b120594771f6a95c88f9d1c950f656e29ca3a16fc61d6622dc1a
+[2021-04-05T05:06:54Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc40dff0
+[2021-04-05T05:06:54Z INFO  nft_ptr_lib] Deploying contract for nft_ptr 7fa2cc712140 Animal void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881)
+[2021-04-05T05:08:40Z INFO  nft_ptr_lib] Deployed contract for nft_ptr 7fa2cc712140 Animal void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881) at 0xa8db20d1686489bf1869c1ad51a5f14b24ddba3b
+[2021-04-05T05:08:40Z INFO  nft_ptr_lib] https://goerli.etherscan.io/token/0xa8db20d1686489bf1869c1ad51a5f14b24ddba3b
+[2021-04-05T05:08:40Z INFO  nft_ptr_lib] Transferring 0x7fa2cc707e40 (Duck) to 0x7fa2cc712140 (0xa8db20d1686489bf1869c1ad51a5f14b24ddba3b) from 0x7fa2cc413770 (0x3e86c6ecd0989dc24b8a8f74eb9bf49576fe08d4) at PC=0x102f8a501 (void std::__1::allocator<wdb::nft_ptr<Animal> >::construct<wdb::nft_ptr<Animal>, wdb::nft_ptr<Animal> >(wdb::nft_ptr<Animal>*, wdb::nft_ptr<Animal>&&) (memory:1881))
+[2021-04-05T05:10:40Z INFO  nft_ptr_lib] Transaction: 0x8b4655a8b6906bd55728edf0f624b0fcb59310a83892992f8f267d9e431f9f9c
+[2021-04-05T05:10:40Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc707e40
+Making noises:
+Quack!
+Ow, ow, ow!
+
+Destroying everything
+[2021-04-05T05:10:40Z INFO  nft_ptr_lib] Transferring 0x7fa2cc40dff0 (Seal) to 0x0 (0xd54b39c6bb7774aba2be4b49dc2667332b737909) from 0x7fa2cc712148 (0x84e2b1f7969cf65d72d867182f377d47580ee049) at PC=0x102f89499 (std::__1::allocator<wdb::nft_ptr<Animal> >::destroy(wdb::nft_ptr<Animal>*) (memory:1936))
+[2021-04-05T05:12:54Z INFO  nft_ptr_lib] Transaction: 0x3e5ae731b6c4576fa2ca4eb67123fa284f4512f1a0cb4bf57317a9a6b1238366
+[2021-04-05T05:12:54Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc40dff0
+[2021-04-05T05:12:54Z INFO  nft_ptr_lib] Transferring 0x7fa2cc707e40 (Duck) to 0x0 (0xd54b39c6bb7774aba2be4b49dc2667332b737909) from 0x7fa2cc712140 (0xa8db20d1686489bf1869c1ad51a5f14b24ddba3b) at PC=0x102f89499 (std::__1::allocator<wdb::nft_ptr<Animal> >::destroy(wdb::nft_ptr<Animal>*) (memory:1936))
+[2021-04-05T05:14:38Z INFO  nft_ptr_lib] Transaction: 0x40c1f6289d7139722c58e836d2dec0493efd016e439e658bedd90bcfb1833f7c
+[2021-04-05T05:14:38Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x71a9c16db2dc3581b26a0952534bfd6097a6bf12/0x7fa2cc707e40
