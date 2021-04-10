@@ -21,6 +21,19 @@ This [transfers](https://goerli.etherscan.io/tx/0xcbe06fdd54bd9d221993c875022fe2
 [2021-04-09T02:00:15Z INFO  nft_ptr_lib] https://testnets.opensea.io/assets/goerli/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d/0x7faa4bc09c90
 ```
 
+After the transfer, `ptr1` is set to null, and `ptr2` contains the new object, just like `std::unique_ptr`:
+
+```cpp
+  std::cout << "Moved: ptr1 = " << ptr1.get() << " ptr2 = " << ptr2.get()
+            << std::endl;
+  ptr2->MakeNoise();
+```
+
+```
+  Moved: ptr1 = 0x0 ptr2 = 0x7faa4bc09c90
+  Moo!
+```
+
 # Example: constructing an `nft_ptr` and minting an NFT
 
 ```cpp
@@ -67,7 +80,25 @@ A longer example, which shows using `nft_ptr` with function calls and STL contai
 
 # Why?
 
+- Biggest issue facing [$125 billion](https://www.idc.com/getdoc.jsp?containerId=prUS46773220) security industry: **Memory safety**.
+  - "**~70%** of the vulnerabilities addressed through a security update each year continue to be memory safety issues." - [Microsoft Security Response Center](https://github.com/Microsoft/MSRC-Security-Research/blob/master/presentations/2019_02_BlueHatIL/2019_01%20-%20BlueHatIL%20-%20Trends%2C%20challenge%2C%20and%20shifts%20in%20software%20vulnerability%20mitigation.pdf)
+- The world's largest codebases are written in **C++**
+  - Browsers, operating systems, databases, financial systems
+- C++ memory management is hard to understand, opaque, and not secure
+- As we all know, adding blockchain to a problem **automatically** makes it simple, transparent, and cryptographically secure.
+
+- Thus, we extend `std::unique_ptr`, the [most popular](https://www.chromium.org/developers/smart-pointer-guidelines) C++ smart pointer used for memory management, with Blockchain support
+
+- Non-Fungible Tokens and `std::unique_ptr` have the exact same semantics:
+  - each token/object is unique, not fungible with other tokens/objects
+  - each token/object is owned by one owner/`unique_ptr`
+  - others may view the NFT/use the object, but only the owner can transfer/destroy the NFT/object.
+  - absolutely no protection against just pirating the image represented by the NFT/copying the pointer out of the unique_ptr
+
 - Written in Rust for the hipster cred.
+- Made with 💖 by a Blockchain Expert who wrote like 100 lines of Solidity in 2017 (which didn't work)
+
+For more information, please read our [white paper](white_paper.pdf).
 
 # Performance
 
@@ -85,11 +116,9 @@ A longer example, which shows using `nft_ptr` with function calls and STL contai
 - Call smart contract to create token when a pointer is transferred into an `nft_ptr`
 - Transfer token when pointer moved between `nft_ptr`s
 
-For more information, please read our [white paper](white_paper.pdf).
-
 # Future steps
 
-`nft_ptr` instances are themselves [ERC-20 tokens](https://goerli.etherscan.io/token/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d) with 0 supply, for forward compatibility with our next library, `nft_shared_ptr`.
+`nft_ptr` instances are themselves [ERC-20 tokens](https://goerli.etherscan.io/token/0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef) with 0 supply, for forward compatibility with our next library, `nft_shared_ptr`.
 
 `nft_shared_ptr` will implement reference counting by selling shares to the owned object until the SEC complains.
 
@@ -105,7 +134,7 @@ You can also help by going full `r/roastme` on my code: this is only my second R
 - how to implement a Non-Fungible Token
 - how the Ethereum ecosystem has evolved since I wrote my last smart contract in 2017
 - how to write a (trivial) program in Rust without fighting the borrow checker once
-- how to use [rust-web3](https://github.com/tomusdrw/rust-web3), [serde_json](https://github.com/serde-rs/json), and the [openssl](https://docs.rs/openssl/0.10.33/openssl/) crate
+- how to use [rust-web3](https://github.com/tomusdrw/rust-web3), [serde_json](https://github.com/serde-rs/json), and the [openssl](https://docs.rs/openssl/0.10.33/openssl/) crates
 - how to call Rust from C
 
 # Building
