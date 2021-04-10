@@ -1,0 +1,13 @@
+name: Build nft_ptr
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build with CI build script
+      run: ci_build.sh

@@ -9,7 +9,9 @@ C++ `std::unique_ptr` that represents each object as an NFT on the Ethereum Bloc
   ptr2 = std::move(ptr1);
 ```
 
-This [transfers](https://goerli.etherscan.io/tx/0xcbe06fdd54bd9d221993c875022fe2960128874811a25075d692cc638a28f290) the NFT token [0x7faa4bc09c90](https://testnets.opensea.io/assets/goerli/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d/0x7faa4bc09c90), representing the `Cow`'s memory address, from `ptr1` ([OpenSea](https://testnets.opensea.io/accounts/0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef?tab=activity), [Etherscan](https://goerli.etherscan.io/address/0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef#tokentxnsErc721)) to `ptr2` ([OpenSea](https://testnets.opensea.io/accounts/0x1564b0a7c258fc88a96aa9fe1c513101883abb13?tab=activity), [Etherscan](https://goerli.etherscan.io/address/0x1564b0a7c258fc88a96aa9fe1c513101883abb13#tokentxnsErc721)).
+This [transfers](https://goerli.etherscan.io/tx/0xcbe06fdd54bd9d221993c875022fe2960128874811a25075d692cc638a28f290) the Non-Fungible Token [0x7faa4bc09c90](https://testnets.opensea.io/assets/goerli/0x90eaf0ab2c6455a9b794f9dcf97839fa25b4ce2d/0x7faa4bc09c90), representing the `Cow`'s memory address, from `ptr1` ([OpenSea](https://testnets.opensea.io/accounts/0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef?tab=activity), [Etherscan](https://goerli.etherscan.io/address/0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef#tokentxnsErc721)) to `ptr2` ([OpenSea](https://testnets.opensea.io/accounts/0x1564b0a7c258fc88a96aa9fe1c513101883abb13?tab=activity), [Etherscan](https://goerli.etherscan.io/address/0x1564b0a7c258fc88a96aa9fe1c513101883abb13#tokentxnsErc721)).
+
+![screenshot of OpenSea Trading History showing token transfer](example/logs/opensea_transfer_ptr1_ptr2.png)
 
 ```
 [2021-04-09T01:59:48Z INFO  nft_ptr_lib] Transferring 0x7faa4bc09c90 (Cow) to 0x7ffee35a7890 (0x1564b0a7c258fc88a96aa9fe1c513101883abb13) from 0x7ffee35a78a8 (0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef) at PC=0x10c65a946 (main (example.cpp:33))
@@ -57,10 +59,18 @@ Finally, it calls `new Cow()`, and [mints an NFT](https://testnets.opensea.io/as
 
 # More examples
 
-A full example program can be found at [example/example.cpp](example/example.cpp), along with a sample of its [output](example/log/log_goerli_hosted.txt) when run.
+A full example program can be found at [example/example.cpp](example/example.cpp), along with a sample of its [output](example/logs/log_goerli_hosted.txt) when run.
 
-A longer example, which shows using `nft_ptr` with function calls and STL containers, can be found at [example/example_long.cpp](example/example_long.cpp) along with its [output](example/log/log_long_example_goerli.txt).
+A longer example, which shows using `nft_ptr` with function calls and STL containers, can be found at [example/long_example.cpp](example/long_example.cpp) along with its [output](example/logs/log_long_example_goerli.txt).
 
+# Performance
+
+`nft_ptr` has negligible performance overhead compared to `std::unique_ptr`, as shown by this benchmark on [our example program](example/example.cpp):
+
+| Implementation    | Runtime       |
+|-------------------|:-------------:|
+| `std::unique_ptr` | 0.005 seconds |
+| `nft_ptr`         | 3 minutes     |
 
 # What works
 
@@ -69,6 +79,8 @@ A longer example, which shows using `nft_ptr` with function calls and STL contai
 - Tested on local chain using Ganache
 - Create smart contract for each `nft_ptr` instance
 - Transfer token when pointer moved between `nft_ptr`s
+
+For more information, please read our [white paper](white_paper.pdf).
 
 # Building
 
@@ -137,4 +149,6 @@ cd example
 RUST_BACKTRACE=1 RUST_LOG=info NFT_PTR_IPC=$HOME/Library/Ethereum/goerli/geth.ipc ./example
 ```
 
-# Thanks
+# Sponsor development
+
+For a limited time, you can buy any Git commit from this repository as a Non-Fungible Token on my Content-First Multimedia Proof-of-Authority revision-controlled realtime collaborative private enterprise [Blockchain](https://docs.google.com/document/d/1d03A_-BAgwFZgmHh3TzEbGsvQ33albI9WT3fLa9gjtQ/edit) (a shared Google Doc).
