@@ -1,4 +1,4 @@
-C++ `std::unique_ptr` that represents each object as an NFT on the Ethereum Blockchain.
+C++ `std::unique_ptr` that represents each object as an NFT on the Ethereum blockchain.
 
 [![Build nft_ptr](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml/badge.svg)](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml)
 
@@ -87,7 +87,7 @@ A longer example, which shows using `nft_ptr` with function calls and STL contai
 - C++ memory management is hard to understand, opaque, and not secure
 - As we all know, adding blockchain to a problem **automatically** makes it simple, transparent, and cryptographically secure.
 
-- Thus, we extend `std::unique_ptr`, the [most popular](https://www.chromium.org/developers/smart-pointer-guidelines) C++ smart pointer used for memory management, with Blockchain support
+- Thus, we extend `std::unique_ptr`, the [most popular](https://www.chromium.org/developers/smart-pointer-guidelines) C++ smart pointer used for memory management, with blockchain support
 
 - Non-Fungible Tokens and `std::unique_ptr` have the exact same semantics:
   - each token/object is unique, not fungible with other tokens/objects
@@ -122,9 +122,40 @@ For more information, please read our [white paper](white_paper.pdf).
 
 `nft_shared_ptr` will implement reference counting by selling shares to the owned object until the SEC complains.
 
+# Obligatory system diagrams
+
+How we call from C++ to Rust to Solidity:
+
+```
++-----+              +------+              +--------+        +---------------+
+|     |  extern "C"  |      |  rust-web3   |        |        |               |
+| C++ +------------->| Rust +------------->| Wallet +------->| NFT Contracts |
+|     |              |      |              |        |        |               |
++-----+              +------+              +--------+        +---------------+
+```
+
+How the [`NftPtrToken`](contracts/contracts/NftPtrToken.sol) contract and the [`NftPtrOwner`](contracts/contracts/NftPtrOwner.sol) contracts interact:
+
+```
++-------------+          +-------------------+
+| NftPtrToken |          | NftPtrOwner       |
+|             | Owns     |                   |
+| 0x41414141<--+---------+ nft_ptr<Animal>   |
+|             |          +-------------------+
+|             |
+|             | Owns     +-------------------+
+| 0x42424242<--+---------+NftPtrOwner        |
+|             |          |                   |
+|             |          | nft_ptr<Animal>   |
+| (1 instance |          +-------------------+
+| per program)|          ...
+|             |
++-------------+       (1 instance per nft_ptr)
+```
+
 # Sponsor development
 
-For a limited time, you can buy any Git commit from this repository as a Non-Fungible Token on my Content-First Multimedia Proof-of-Authority revision-controlled realtime collaborative private enterprise [Blockchain](https://docs.google.com/document/d/1d03A_-BAgwFZgmHh3TzEbGsvQ33albI9WT3fLa9gjtQ/edit) (a shared Google Doc).
+For a limited time, you can buy any Git commit from this repository as a Non-Fungible Token on my Content-First Multimedia Proof-of-Authority revision-controlled realtime collaborative private enterprise [blockchain](https://docs.google.com/document/d/1d03A_-BAgwFZgmHh3TzEbGsvQ33albI9WT3fLa9gjtQ/edit) (a shared Google Doc).
 
 You can also help by going full `r/roastme` on my code: this is only my second Rust project, and I would appreciate guidance on my way to [carcinization](https://en.wikipedia.org/wiki/Carcinisation).
 
@@ -133,6 +164,7 @@ You can also help by going full `r/roastme` on my code: this is only my second R
 - how C++ smart pointers are implemented
 - how to implement a Non-Fungible Token
 - how the Ethereum ecosystem has evolved since I wrote my last smart contract in 2017
+- Learning to use Solidity, Truffle, and Ganache again, while trying new tools such as OpenZeppelin and hosted wallets
 - how to write a (trivial) program in Rust without fighting the borrow checker once
 - how to use [rust-web3](https://github.com/tomusdrw/rust-web3), [serde_json](https://github.com/serde-rs/json), and the [openssl](https://docs.rs/openssl/0.10.33/openssl/) crates
 - how to call Rust from C
