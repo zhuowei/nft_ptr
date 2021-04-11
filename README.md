@@ -1,6 +1,6 @@
 C++ `std::unique_ptr` that represents each object as an NFT on the Ethereum blockchain.
 
-[![Build nft_ptr](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml/badge.svg)](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml)
+[![Build nft_ptr](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml/badge.svg)](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml) | Follow us: [https://worthdoingbadly.com/](https://worthdoingbadly.com/)/[@zhuowei](https://twitter.com/zhuowei)/[@zhuowei@notnow.dev](https://notnow.dev/zhuowei)
 
 # Example: moving between two `nft_ptr`s
 
@@ -93,7 +93,7 @@ A longer example, which shows using `nft_ptr` with function calls and STL contai
   - each token/object is unique, not fungible with other tokens/objects
   - each token/object is owned by one owner/`unique_ptr`
   - others may view the NFT/use the object, but only the owner can transfer/destroy the NFT/object.
-  - absolutely no protection against just pirating the image represented by the NFT/copying the pointer out of the unique_ptr
+  - absolutely no protection against just pirating the image represented by the NFT/copying the pointer out of the `unique_ptr`
 
 - Written in Rust for the hipster cred.
 - Made with 💖 by a Blockchain Expert who wrote like 100 lines of Solidity in 2017 (which didn't work)
@@ -120,7 +120,7 @@ For more information, please read our [white paper](white_paper.pdf).
 
 `nft_ptr` instances are themselves [ERC-20 tokens](https://goerli.etherscan.io/token/0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef) with 0 supply, for forward compatibility with our next library, `nft_shared_ptr`.
 
-`nft_shared_ptr` will implement reference counting by selling shares to the owned object until the SEC complains.
+`nft_shared_ptr` will implement reference counting by selling shares to the owned object until the SEC complains about our security.
 
 # Obligatory system diagrams
 
@@ -144,7 +144,7 @@ How the [`NftPtrToken`](contracts/contracts/NftPtrToken.sol) contract and the [`
 |             |          +-------------------+
 |             |
 |             | Owns     +-------------------+
-| 0x42424242<--+---------+NftPtrOwner        |
+| 0x42424242<--+---------+ NftPtrOwner       |
 |             |          |                   |
 |             |          | nft_ptr<Animal>   |
 | (1 instance |          +-------------------+
