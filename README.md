@@ -139,11 +139,11 @@ How the [`NftPtrToken`](contracts/contracts/NftPtrToken.sol) contract and the [`
 ```
 +-------------+          +-------------------+
 | NftPtrToken |          | NftPtrOwner       |
-|             | Owns     |                   |
+|             | Owns     |                   |
 | 0x41414141<--+---------+ nft_ptr<Animal>   |
 |             |          +-------------------+
 |             |
-|             | Owns     +-------------------+
+|             | Owns     +-------------------+
 | 0x42424242<--+---------+NftPtrOwner        |
 |             |          |                   |
 |             |          | nft_ptr<Animal>   |
@@ -157,14 +157,14 @@ How the [`NftPtrToken`](contracts/contracts/NftPtrToken.sol) contract and the [`
 
 For a limited time, you can buy any Git commit from this repository as a Non-Fungible Token on my Content-First Multimedia Proof-of-Authority revision-controlled realtime collaborative private enterprise [blockchain](https://docs.google.com/document/d/1d03A_-BAgwFZgmHh3TzEbGsvQ33albI9WT3fLa9gjtQ/edit) (a shared Google Doc).
 
-You can also help by going full `r/roastme` on my code: this is only my second Rust project, and I would appreciate guidance on my way to [carcinization](https://en.wikipedia.org/wiki/Carcinisation).
+You can also help by going full `r/roastme` on my code: this is only my second Rust project, and I would appreciate guidance on my journey to [carcinization](https://en.wikipedia.org/wiki/Carcinisation).
 
 # What I learned
 
 - how C++ smart pointers are implemented
 - how to implement a Non-Fungible Token
 - how the Ethereum ecosystem has evolved since I wrote my last smart contract in 2017
-- Learning to use Solidity, Truffle, and Ganache again, while trying new tools such as OpenZeppelin and hosted wallets
+- how to integrate my previous Solidity, Truffle, and Ganache workflow with new tools such as OpenZeppelin and hosted wallets
 - how to write a (trivial) program in Rust without fighting the borrow checker once
 - how to use [rust-web3](https://github.com/tomusdrw/rust-web3), [serde_json](https://github.com/serde-rs/json), and the [openssl](https://docs.rs/openssl/0.10.33/openssl/) crates
 - how to call Rust from C
