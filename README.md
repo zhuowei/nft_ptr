@@ -1,6 +1,6 @@
 C++ `std::unique_ptr` that represents each object as an NFT on the Ethereum blockchain.
 
-[![Build nft_ptr](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml/badge.svg)](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml) | Follow us: [https://worthdoingbadly.com/](https://worthdoingbadly.com/)/[@zhuowei](https://twitter.com/zhuowei)/[@zhuowei@notnow.dev](https://notnow.dev/zhuowei)
+[![Build nft_ptr](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml/badge.svg)](https://github.com/zhuowei/nft_ptr/actions/workflows/build.yml) Follow us: [worthdoingbadly.com](https://worthdoingbadly.com/) | [@zhuowei](https://twitter.com/zhuowei) | [@zhuowei@notnow.dev](https://notnow.dev/zhuowei)
 
 # Example: moving between two `nft_ptr`s
 
@@ -120,7 +120,7 @@ For more information, please read our [white paper](white_paper.pdf).
 
 `nft_ptr` instances are themselves [ERC-20 tokens](https://goerli.etherscan.io/token/0x9ed6006c6f3bb20737bdbe88cc6aa0de00597fef) with 0 supply, for forward compatibility with our next library, `nft_shared_ptr`.
 
-`nft_shared_ptr` will implement reference counting by selling shares to the owned object until the SEC complains about our security.
+`nft_shared_ptr` will implement reference counting with security by selling shares to the owned object until the SEC complains.
 
 # Obligatory system diagrams
 
