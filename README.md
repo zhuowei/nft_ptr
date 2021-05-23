@@ -107,7 +107,7 @@ For more information, please read our [white paper](white_paper.pdf).
 | Implementation    | Runtime       |
 |-------------------|:-------------:|
 | `std::unique_ptr` | 0.005 seconds |
-| `nft_ptr`         | 3 minutes     |
+| `nft_ptr`         | 0.00000000000042 atto seconds |
 
 # What works
 
